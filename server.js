@@ -116,24 +116,67 @@ app.get("/remix", async (req, res) => {
   let lowestInPlaylist = [];
   while (lowestInPlaylist.length < 10 && offset > 0) {
     let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
-    lowest.items.forEach(track => {
-      if (playlist.tracks.items.includes(track)) {
-        lowestInPlaylist.push(track);
+    for (let i = 0; i < lowest.items.length; i++) {
+      for (let j = 0; j < playlist.tracks.items.length; j++) {
+        if (lowest.items[i].id == playlist.tracks.items[j].track.id) {
+          lowestInPlaylist.push(lowest.items[i]);
+        }
       }
-    });
+    }
     offset -= limit; // shift offset backwards for the next check
+    /*
     if (offset < 0) {
       offset = 0;
       let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
-      lowest.items.forEach(track => {
-        if (playlist.tracks.items.includes(track)) {
-          lowestInPlaylist.push(track);
-        }
+      lowest.items.forEach(lowestTrack => {
+        playlist.tracks.items.forEach(playlistTrack => {
+          if (lowestTrack.id == playlistTrack.id) {
+            lowestInPlaylist.push(lowestTrack);
+          }
+        });
       });
     }
+    */
   }
 
   res.render("remix", { playlist: playlist, lowest: lowestInPlaylist });
+});
+
+app.get("/library", async (req, res) => {
+  const lib = await getData("/me/tracks");
+  console.log(lib.total);
+
+  const time_range = "long_term";
+  const limit = 50;
+  const topTotalCheck = await getData("/me/top/tracks");
+  let offset = topTotalCheck.total - limit;
+  let lowestInLib = [];
+  while (lowestInLib.length < 10 && offset > 0) {
+    let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
+    for (let i = 0; i < lowest.items.length; i++) {
+      for (let j = 0; j < lib.items.length; j++) {
+        if (lowest.items[i].id == lib.items[j].track.id) {
+          lowestInLib.push(lowest.items[i]);
+        }
+      }
+    }
+    offset -= limit; // shift offset backwards for the next check
+    /*
+    if (offset < 0) {
+      offset = 0;
+      let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
+      lowest.items.forEach(lowestTrack => {
+        playlist.tracks.items.forEach(playlistTrack => {
+          if (lowestTrack.id == playlistTrack.id) {
+            lowestInPlaylist.push(lowestTrack);
+          }
+        });
+      });
+    }
+    */
+  }
+
+  res.render("library", { lowest: lowestInLib });
 });
 
 /*

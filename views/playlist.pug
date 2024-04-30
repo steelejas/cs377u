@@ -1,10 +1,11 @@
 extends layout.pug
     
 block content    
+    a(href='http://localhost:3000') Back Home
     img(src=playlist.images[0].url, class='square_image')
     h1 #{playlist.name}
-    td: a(href=playlist.uri) Open in Spotify
-    td: a(href='/remix?id=' + playlist.id) REMIX!
+    // td: a(href=playlist.uri) Open in Spotify
+    td: a(href='/remix?id=' + playlist.id) Listen to songs you haven't heard in awhile...
 
     table 
       each t in playlist.tracks.items

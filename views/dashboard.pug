@@ -1,14 +1,20 @@
 extends layout.pug
     
 block content
+    img(src=user.images[0].url, class='square_image')
     h1 Welcome #{user.id}!
-    img(src=user.images[0].url, class='circular_image')
+
+    h2 Rediscover your music library...
+
+    a(href='/library') Listen to saved songs you haven't heard in awhile!
+
+    h2 Or choose a playlist to rediscover...
 
     table 
       each p in playlists
         tr 
           - var playlist_name = p.name
-          - var playlist_url = p.uri // p.external_urls.spotify
+          - var playlist_url = p.uri
           - var playlist_num_tracks = p.tracks.total
           - var playlist_id = p.id
 
