@@ -5,7 +5,7 @@ block content
     h1 #{playlist.name} REMIX!
 
     table 
-      each t in top.items
+      each t in lowest
         tr 
           - var artist_name = t.artists[0].name
           - var track_name = t.name

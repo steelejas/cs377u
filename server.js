@@ -98,6 +98,45 @@ app.get("/playlist", async (req, res) => {
   res.render("playlist", { playlist: playlist });
 });
 
+
+app.get("/remix", async (req, res) => {
+  const playlist_id = req.query.id;
+  const playlist = await getData("/playlists/" + playlist_id);
+
+  const lib = await getData("/me/tracks");
+  console.log(lib.total);
+
+  // const recent1 = await getData("/me/player/recently-played");
+  // console.log(recent.total);
+
+  const time_range = "long_term";
+  const limit = 50;
+  const topTotalCheck = await getData("/me/top/tracks");
+  let offset = topTotalCheck.total - limit;
+  let lowestInPlaylist = [];
+  while (lowestInPlaylist.length < 10 && offset > 0) {
+    let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
+    lowest.items.forEach(track => {
+      if (playlist.tracks.items.includes(track)) {
+        lowestInPlaylist.push(track);
+      }
+    });
+    offset -= limit; // shift offset backwards for the next check
+    if (offset < 0) {
+      offset = 0;
+      let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
+      lowest.items.forEach(track => {
+        if (playlist.tracks.items.includes(track)) {
+          lowestInPlaylist.push(track);
+        }
+      });
+    }
+  }
+
+  res.render("remix", { playlist: playlist, lowest: lowestInPlaylist });
+});
+
+/*
 app.get("/remix", async (req, res) => {
   const playlist_id = req.query.id;
   const playlist = await getData("/playlists/" + playlist_id);
@@ -111,11 +150,12 @@ app.get("/remix", async (req, res) => {
 
   const time_range = "long_term";
   const limit = 50;
-  const top_check = await getData("/me/top/tracks");
-  let offset = top_check.total - limit;
-  const top = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
-  res.render("remix", { playlist: playlist, top: top });
+  const topTotalCheck = await getData("/me/top/tracks");
+  let offset = topTotalCheck.total - limit;
+  const lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
+  res.render("remix", { playlist: playlist, lowest: lowest.items });
 });
+*/
 
 let listener = app.listen(3000, function () {
   console.log(
