@@ -1,0 +1,15 @@
+extends layout.pug
+    
+block content    
+    img(src=playlist.images[0].url, class='square_image')
+    h1 #{playlist.name} REMIX!
+
+    table 
+      each t in top.items
+        tr 
+          - var artist_name = t.artists[0].name
+          - var track_name = t.name
+          - var track_preview = t.preview_url
+
+          td #{track_name} - #{artist_name}
+          td: a(href=track_preview) Preview

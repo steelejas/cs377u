@@ -1,0 +1,21 @@
+extends layout.pug
+    
+block content    
+    img(src=playlist.images[0].url, class='square_image')
+    h1 #{playlist.name}
+    td: a(href=playlist.uri) Open in Spotify
+    td: a(href='/remix?id=' + playlist.id) REMIX!
+
+    table 
+      each t in playlist.tracks.items
+        tr 
+          - var artist_name = t.track.artists[0].name
+          - var track_name = t.track.name
+          - var track_preview = t.track.preview_url
+          - var artist_id = t.track.artists[0].id
+          - var track_id = t.track.id 
+          - var track_popularity = t.track.popularity
+          - var track_ms = t.track.duration_ms 
+
+          td #{track_name} - #{artist_name}
+          td: a(href=track_preview) Preview
