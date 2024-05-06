@@ -1,6 +1,10 @@
 extends layout.pug
     
 block content
+    // LOGOUT BUTTON
+    a(href='/', onclick='logout()') Logout
+
+    // GREETINGS HEADER
     img(src=user.images[0].url, class='circular_image')
     br
     
@@ -22,3 +26,17 @@ block content
 
           td: a(href='/playlist?id=' + playlist_id) #{playlist_name}
           td #{playlist_num_tracks} songs
+
+    // HANDLE LOGOUT CLEANUP
+    script.
+      function logout() {
+        // Clear cookies
+        document.cookie.split(";").forEach(function(c) {
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        // Clear local storage
+        localStorage.clear();
+        alert('Hey! We\'re logging you out! Click "Continue" to continue!');
+
+        
+      }

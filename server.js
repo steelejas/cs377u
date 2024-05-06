@@ -1,10 +1,17 @@
 /*
-USAGE NOTES: Jasmine’s credentials work here for any user to login, just make sure…
+USAGE NOTES 
+
+LOGGING IN: Jasmine’s credentials work here for any user to login, just make sure…
   1) User is added to user list (see https://developer.spotify.com/dashboard/27355b6bf834496e8d4a0ebee545f18c/users, use Jasmine’s login)
 
   2) Session is brand new (Spotify does some weird cache thing)
 
-  3) User has made some Spotify app in the past (so Spotify can find their secret & id)
+  3) User has made some Spotify app in the past (so they have some existing Spotify secret & id... yeah, a HUGE pain, I know...)
+
+APP WON'T START
+  1) Assuming you've already tried starting a fresh new session...
+
+  2) Try npm install & npm start again... That should do the trick...
 */
 
 import express from "express";
@@ -17,10 +24,10 @@ app.set("view engine", "pug");
 
 app.use(express.static("public"));
 
+// Jasmine's credientials below! Should NOT have to change them!
 const redirect_uri = "http://localhost:3000/callback";
 const client_id = "27355b6bf834496e8d4a0ebee545f18c";
 const client_secret = "a9b83d2bf5b94583a470ec3e52612dae";
-
 global.access_token;
 
 app.get("/", function (req, res) {
@@ -35,6 +42,7 @@ app.get("/authorize", (req, res) => {
     client_id: client_id,
     scope: "user-library-read user-top-read user-read-recently-played playlist-modify-public playlist-modify-private",
     redirect_uri: redirect_uri,
+    show_dialog: true
   });
 
   res.redirect(
@@ -44,7 +52,7 @@ app.get("/authorize", (req, res) => {
 
 app.get("/callback", async (req, res) => {
   const code = req.query.code;
-  console.log('HEY! Logging in...')
+  console.log('HEY! LOGGING IN...')
 
   var body = new URLSearchParams({
     code: code,
@@ -85,8 +93,7 @@ async function getData(endpoint) {
 app.get("/dashboard", async (req, res) => {
   const userInfo = await getData("/me");
   const tracks = await getData("/me/tracks?limit=10");
-  const playlists = await getData("/me/playlists"); // mine
-
+  const playlists = await getData("/me/playlists");
 
   res.render("dashboard", { user: userInfo, tracks: tracks.items, playlists: playlists.items });
 });
