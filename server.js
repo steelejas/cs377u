@@ -202,19 +202,20 @@ app.get("/library", async (req, res) => {
 app.get("/createplaylist", async (req, res) => {
   const userInfo = await getData("/me");
   
-  /*var body = new URLSearchParams({
+  var body = new URLSearchParams({
     name: "New Playlist",
     description: "New playlist description",
     public: false
-  });*/
+  });
 
   const response = await fetch("https://api.spotify.com/v1/users/" + userInfo.id + "/playlists", {
     method: "post",
-    body: {
-      name: "New Playlist",
-      description: "New playlist description",
-      public: false
-    },
+    body: body,
+    /*body: {
+      "name": "New Playlist",
+      "description": "New playlist description",
+      "public": "false"
+    },*/
     headers: {
       "Content-type": "application/json",
       Authorization: "Bearer " + global.access_token,
