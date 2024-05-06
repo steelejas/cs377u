@@ -5,8 +5,10 @@ block content
     img(src=playlist.images[0].url, class='square_image')
     h1 #{playlist.name}
     // td: a(href=playlist.uri) Open in Spotify
-    td: a(href='/remix?id=' + playlist.id) Listen to songs you haven't heard in awhile...
+    a(href='/remix?id=' + playlist.id) Find me 10 forgotten songs from this playlist! ✨
 
+    h2 Playlist contents:
+    
     table 
       each t in playlist.tracks.items
         tr 

@@ -22,7 +22,7 @@ app.get("/authorize", (req, res) => {
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: client_id,
-    scope: "user-library-read user-top-read user-read-recently-played",
+    scope: "user-library-read user-top-read user-read-recently-played playlist-modify-public playlist-modify-private",
     redirect_uri: redirect_uri,
   });
 
@@ -177,6 +177,44 @@ app.get("/library", async (req, res) => {
   }
 
   res.render("library", { lowest: lowestInLib });
+});
+
+app.get("/createplaylist", async (req, res) => {
+  const userInfo = await getData("/me");
+  
+  /*var body = new URLSearchParams({
+    name: "New Playlist",
+    description: "New playlist description",
+    public: false
+  });*/
+
+  const response = await fetch("https://api.spotify.com/v1/users/" + userInfo.id + "/playlists", {
+    method: "post",
+    body: {
+      name: "New Playlist",
+      description: "New playlist description",
+      public: false
+    },
+    headers: {
+      "Content-type": "application/json",
+      Authorization: "Bearer " + global.access_token,
+    },
+  });
+
+  /*
+  curl --request POST \
+  --url https://api.spotify.com/v1/users/smedjan/playlists \
+  --header 'Authorization: Bearer 1POdFZRZbvb...qqillRxMr2z' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "name": "New Playlist",
+    "description": "New playlist description",
+    "public": false
+}'
+  */
+
+  const data = await response.json();
+  res.render("createplaylist", { playlist: data });
 });
 
 /*
