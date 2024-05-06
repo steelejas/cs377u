@@ -1,3 +1,12 @@
+/*
+USAGE NOTES: Jasmine’s credentials work here for any user to login, just make sure…
+  1) User is added to user list (see https://developer.spotify.com/dashboard/27355b6bf834496e8d4a0ebee545f18c/users, use Jasmine’s login)
+
+  2) Session is brand new (Spotify does some weird cache thing)
+
+  3) User has made some Spotify app in the past (so Spotify can find their secret & id)
+*/
+
 import express from "express";
 import fetch from "node-fetch";
 
@@ -15,10 +24,12 @@ const client_secret = "a9b83d2bf5b94583a470ec3e52612dae";
 global.access_token;
 
 app.get("/", function (req, res) {
+  console.log('HEY! Login page loaded!')
   res.render("index");
 });
 
 app.get("/authorize", (req, res) => {
+  console.log('HEY! Login button clicked!')
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: client_id,
@@ -33,6 +44,7 @@ app.get("/authorize", (req, res) => {
 
 app.get("/callback", async (req, res) => {
   const code = req.query.code;
+  console.log('HEY! Logging in...')
 
   var body = new URLSearchParams({
     code: code,
@@ -58,6 +70,7 @@ app.get("/callback", async (req, res) => {
 });
 
 async function getData(endpoint) {
+  console.log('HEY! Fetching user data...')
   const response = await fetch("https://api.spotify.com/v1" + endpoint, {
     method: "get",
     headers: {
