@@ -1,7 +1,28 @@
 extends layout.pug
-    
+
 block content
+    // STYLE
+    style.
+        body {
+            background-color: var(--SPOTIFY_MTN_MEADOW);
+            text-align: center;
+            color: white;
+        }
+        .spotify-button {
+            background-color: white;
+            color: var(--SPOTIFY_MTN_MEADOW);
+            margin-top: 40px;
+            font-size: 24px;
+        }
+        .small-text {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+    // ACTUAL CONTENT
     h1 Start rediscovering your music! 🎶
-    p Use this tool to find the songs in your Spotify library you haven't listened to in awhile!
-    p Choose a playlist (or your entire library!) and this tool will sift through it to find your 10 most-forgotten songs.
-    a(href='/authorize') Connect Spotify
+    h2 Use this tool to find the songs in your Spotify library you haven't listened to in awhile!
+    h2 Choose a playlist (or your entire library!) and this tool will sift through it to find your 10 most-forgotten songs.
+    a(href = '/authorize', class = 'spotify-button button') Connect to Spotify
+    p.small-text We'll ask you to log into your Spotify account!
+

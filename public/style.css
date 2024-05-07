@@ -1,5 +1,17 @@
 body {
+  --SPOTIFY_MTN_MEADOW: #1db954;
+  --SPOTIFY_MTN_MINT: #69ff87;
+  --SPOTIFY_COD_GRAY: #191414;
+
   padding: 1em 2em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin: 0;
+  color: white;
+  background-color: black;
 }
 ul.footer {
   list-style:none;
@@ -28,4 +40,35 @@ td {
   border-radius: 50%;
   overflow: hidden;
   float: left;
+}
+
+a:hover {
+  color: var(--SPOTIFY_MTN_MINT);
+}
+
+.button {
+  background-color: var(--SPOTIFY_MTN_MEADOW);
+  border-radius: 80px;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  margin: 20px;
+  display: inline-block;
+}
+
+div {
+  background-color: var(--SPOTIFY_COD_GRAY);
+  padding: 30px;
+  border-radius: 20px;
+  margin-top: 20px;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 300;
+}
+.playlist_image {
+  object-fit: cover;
+  border-radius: 5px;
 }
