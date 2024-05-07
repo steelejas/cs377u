@@ -4,13 +4,16 @@ block content
     // STYLE
     style.
         body {
-            background-color: var(--SPOTIFY_MTN_MEADOW);
+            background-color: black;
             text-align: center;
             color: white;
         }
-        .spotify-button {
-            background-color: white;
+        h1 {
             color: var(--SPOTIFY_MTN_MEADOW);
+        }
+        .spotify-button {
+            background-color: var(--SPOTIFY_MTN_MEADOW);
+            color: white;
             margin-top: 40px;
             font-size: 24px;
         }
@@ -18,9 +21,13 @@ block content
             margin-top: 10px;
             font-size: 14px;
         }
+        .big-emoji {
+            font-size: 80px;
+        }
 
     // ACTUAL CONTENT
-    h1 Start rediscovering your music! 🎶
+    h1(class = 'big-emoji') 🎧
+    h1 Start rediscovering your music! 
     h2 Use this tool to find the songs in your Spotify library you haven't listened to in awhile!
     h2 Choose a playlist (or your entire library!) and this tool will sift through it to find your 10 most-forgotten songs.
     a(href = '/authorize', class = 'spotify-button button') Connect to Spotify
