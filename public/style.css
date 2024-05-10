@@ -1,4 +1,5 @@
 body {
+  --SPOTIFY_MTN_MOSS: #1ED760;
   --SPOTIFY_MTN_MEADOW: #1db954;
   --SPOTIFY_MTN_MINT: #69ff87;
   --SPOTIFY_COD_GRAY: #191414;
@@ -21,19 +22,16 @@ ul.footer li {
   display:inline;
   margin-right: 1em;
 }
-
 table {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
   width: auto;
 }
-
 td {
   border: 0px solid #ddd;
   padding: 12px;
   padding-left: 10px;
 }
-
 .circular_image {
   width: 100px;
   height: 100px;
@@ -41,11 +39,9 @@ td {
   overflow: hidden;
   float: left;
 }
-
 a:hover {
   color: var(--SPOTIFY_MTN_MINT);
 }
-
 .button {
   background-color: var(--SPOTIFY_MTN_MEADOW);
   border-radius: 80px;
@@ -56,14 +52,12 @@ a:hover {
   margin: 20px;
   display: inline-block;
 }
-
 div {
   background-color: var(--SPOTIFY_COD_GRAY);
   padding: 30px;
   border-radius: 20px;
   margin-top: 20px;
 }
-
 h2 {
   font-size: 20px;
   font-weight: 300;
@@ -72,9 +66,18 @@ h2 {
   object-fit: cover;
   border-radius: 5px;
 }
-
 .small-text {
-  font-size: 9px;
+  font-size: 15px;
   font-weight: 100;
   color: gray;
+}
+p.smaller-text {
+  font-size: 12px;
+  font-weight: 100;
+  color: whitesmoke;
+  font-style: italic;
+}
+.back-button {
+  background-color: var(--SPOTIFY_COD_GRAY);
+  color: var(--SPOTIFY_MTN_MEADOW);
 }

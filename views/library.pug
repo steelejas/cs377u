@@ -1,8 +1,9 @@
 extends layout.pug
     
 block content    
-    a(href='http://localhost:3000') Back Home
-    h1 Your Library REDISCOVERED! ✨
+    a(href='/dashboard', class = 'back-button button') < Back to dashboard
+
+    h1 Your Library REWRAPPED! ✨
 
     table 
       each t in lowest

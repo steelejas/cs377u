@@ -1,0 +1,26 @@
+extends layout.pug
+
+block content
+    style.
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+        }
+        .music-note {
+            font-size: 55px;
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+    // Content of the loading page
+    div.loading-container
+        span.music-note 🎵
+        p Please sit tight, this may take a while... What can we say, your taste in music is just too good!

@@ -163,6 +163,11 @@ app.get("/remix", async (req, res) => {
 });
 
 app.get("/library", async (req, res) => {
+  console.log("LOADING LIBRARY")
+
+  // Loading page first
+  res.render("loading");
+  
   const lib = await getData("/me/tracks");
   console.log(lib.total);
 

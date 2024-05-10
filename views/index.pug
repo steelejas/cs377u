@@ -17,19 +17,24 @@ block content
             margin-top: 40px;
             font-size: 24px;
         }
-        .small-text {
-            margin-top: 10px;
-            font-size: 14px;
-        }
         .big-emoji {
             font-size: 80px;
+        }
+        h1 span {
+            font-style: italic;
         }
 
     // ACTUAL CONTENT
     h1(class = 'big-emoji') 🎧
-    h1 Start rediscovering your music! 
-    h2 Use this tool to find the songs in your Spotify library you haven't listened to in awhile!
-    h2 Choose a playlist (or your entire library!) and this tool will sift through it to find your 10 most-forgotten songs.
+
+    h1 
+        span Rewrap 
+        | your music!
+
+    h2 Use this tool to rediscover the songs in your Spotify library you haven't listened to in awhile!
+    h2 Choose a playlist (or your entire library!) and this tool will sift through it to find your 10 most forgotten songs.
     a(href = '/authorize', class = 'spotify-button button') Connect to Spotify
     p.small-text We'll ask you to log into your Spotify account!
+
+    p.smaller-text Must be a registered beta user for the class Stanford University CS377U to have login access.
 

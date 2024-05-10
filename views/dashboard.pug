@@ -12,14 +12,34 @@ block content
             background-color: var(--SPOTIFY_COD_GRAY);
             color: var(--SPOTIFY_MTN_MEADOW);
         }
-        .library-button {
-            background-color: var(--SPOTIFY_MTN_MEADOW);
-            color: white;
-        }
         td img {
             width: 50px;
             height: 50px;
             margin-right: 5px;
+        }
+        .library-button {
+            background: linear-gradient(
+                180deg, 
+                var(--SPOTIFY_MTN_MINT), 
+                var(--SPOTIFY_MTN_MEADOW));
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            color: white;
+            border-radius: 100%;
+            width: 100;
+            height: 100;
+            font-size: 48px; 
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative; /* Needed for animation */
+            animation: pulse 2s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
         }
 
     //////////////
@@ -34,11 +54,12 @@ block content
     
     h1 Welcome, #{user.id}!
 
-    h2 Rediscover your music library...
+    a(href='/library', class='library-button button')
+        | 🪄
+    
+    h2 Tap the above button to rewrap 10 forgotten songs from your entire Spotify library!
 
-    a(href='/library', class='library-button button') Find me 10 forgotten songs from my entire Spotify library! 🪄
-
-    h2 Or, choose one of your playlists to rediscover...
+    h2 Or, choose one of your playlists below to rewrap...
 
     p(class = 'small-text') We'll use your public playlists only.
 
