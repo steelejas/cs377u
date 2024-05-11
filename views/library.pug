@@ -1,9 +1,9 @@
 extends layout.pug
     
 block content    
-    a(href='/dashboard', class = 'back-button button') < Back to dashboard
+    a(onclick='goBack()', class = 'back-button button') < Back to dashboard
 
-    h1 Your Library REWRAPPED! ✨
+    h1 Your entire music library, REWRAPPED! ✨
 
     table 
       each t in lowest
@@ -14,3 +14,10 @@ block content
 
           td #{track_name} - #{artist_name}
           td: a(href=track_preview) Preview
+
+    //////////////
+    // SCRIPTS //
+    script.
+        function goBack() {
+            window.history.back();
+        }

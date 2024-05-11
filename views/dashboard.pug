@@ -41,6 +41,10 @@ block content
             0% { transform: scale(1); }
             100% { transform: scale(1.1); }
         }
+        .greetings-container {
+            display: flex;
+            align-items: center; 
+        }
 
     //////////////
     // CONTENT //
@@ -49,10 +53,10 @@ block content
     a(onclick='logout()', class='logout-button button') Logout
 
     // GREETINGS HEADER
-    img(src=user.images[0].url, class='circular_image')
-    br
-    
-    h1 Welcome, #{user.id}!
+    div.greetings-container
+        h1 Welcome, #{user.id}!
+        br
+        img(src=user.images[0].url, class='circular_image')
 
     a(href='/library', class='library-button button')
         | 🪄
@@ -76,7 +80,8 @@ block content
             
             td: a(href='/playlist?id=' + playlist_id) #{playlist_name}
 
-            td #{playlist_num_tracks} songs
+            // Below not really necessary, since we're not showing full playlist anymore
+            // td #{playlist_num_tracks} songs
 
     //////////////
     // SCRIPTS //

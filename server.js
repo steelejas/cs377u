@@ -24,6 +24,11 @@ app.set("view engine", "pug");
 
 app.use(express.static("public"));
 
+// To store ALL tracks that aren't in Top 50 or Most Recent 50!
+const REWRAPPED_TRACKS = new Map();
+  // Key: Track ID
+  // Value: Track's playlist ID
+
 // Jasmine's credientials below! Should NOT have to change them!
 const redirect_uri = "http://localhost:3000/callback";
 const client_id = "27355b6bf834496e8d4a0ebee545f18c";
@@ -91,118 +96,96 @@ async function getData(endpoint) {
 }
 
 app.get("/dashboard", async (req, res) => {
-  const userInfo = await getData("/me");
-  const tracks = await getData("/me/tracks?limit=10");
-  const playlists = await getData("/me/playlists");
+  // res.render("loading");
+  try {
+    // FIRST, get EVERYTHING
+    const userInfo = await getData("/me");
+    const topTracks = await getData("/me/top/tracks?limit=50");
+    const recentlyPlayed = await getData("/me/player/recently-played?limit=50");
 
-  res.render("dashboard", { user: userInfo, tracks: tracks.items, playlists: playlists.items });
+    // Creating sets for quick lookup
+    const topTracksIds = new Set(topTracks.items.map(track => track.id));
+    const recentlyPlayedIds = new Set(recentlyPlayed.items.map(item => item.track.id));
+
+    const playlists = await getData("/me/playlists?limit=50");
+
+    for (const playlist of playlists.items) {
+      const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
+
+      for (const item of playlistTracks.items) {
+        const trackId = item.track.id;
+        // Check if the track is neither in the top tracks nor in the recently played tracks
+        if (!topTracksIds.has(trackId) && !recentlyPlayedIds.has(trackId)) {
+          REWRAPPED_TRACKS.set(trackId, playlist.id); // Add to the map
+        }
+      }
+    }
+
+    console.log(`Unique Tracks Count: ${REWRAPPED_TRACKS.size}`);
+
+    res.render("dashboard", {
+      user: userInfo,
+      tracks: topTracks.items,
+      playlists: playlists.items,
+      uniqueTracks: Array.from(REWRAPPED_TRACKS.entries()) // Convert Map to Array to pass to the view
+    }); 
+  } catch (error) {
+    console.error('Failed to load data from Spotify', error);
+    res.status(500).send('Failed to load data');
+  }
 });
 
-app.get("/recommendations", async (req, res) => {
-  const artist_id = req.query.artist;
-  const track_id = req.query.track;
-
-  const params = new URLSearchParams({
-    seed_artist: artist_id,
-    seed_genres: "rock",
-    seed_tracks: track_id,
-  });
-
-  const data = await getData("/recommendations?" + params);
-  res.render("recommendation", { tracks: data.tracks });
+app.get("/dashboard-loaded", async (req, res) => {
+  window.location.href = '/dashboard'
 });
 
 app.get("/playlist", async (req, res) => {
-  const playlist_id = req.query.id;
-  const playlist = await getData("/playlists/" + playlist_id);
-  res.render("playlist", { playlist: playlist });
-});
+  console.log('Fetching a playlist!')
 
-
-app.get("/remix", async (req, res) => {
   const playlist_id = req.query.id;
   const playlist = await getData("/playlists/" + playlist_id);
 
-  const lib = await getData("/me/tracks");
-  console.log(lib.total);
+  // Get all tracks from UNIQUE_SONGS that are in this playlist
+  const tracksInPlaylist = Array.from(REWRAPPED_TRACKS.entries()).filter(([trackId, pId]) => pId === playlist_id);
 
-  // const recent1 = await getData("/me/player/recently-played");
-  // console.log(recent.total);
+  // Extract just the track IDs from the filtered array
+  const trackIds = tracksInPlaylist.map(([trackId, pId]) => trackId);
 
-  const time_range = "long_term";
-  const limit = 50;
-  const topTotalCheck = await getData("/me/top/tracks");
-  let offset = topTotalCheck.total - limit;
-  let lowestInPlaylist = [];
-  while (lowestInPlaylist.length < 10 && offset > 0) {
-    let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
-    for (let i = 0; i < lowest.items.length; i++) {
-      for (let j = 0; j < playlist.tracks.items.length; j++) {
-        if (lowest.items[i].id == playlist.tracks.items[j].track.id) {
-          lowestInPlaylist.push(lowest.items[i]);
-        }
-      }
-    }
-    offset -= limit; // shift offset backwards for the next check
-    /*
-    if (offset < 0) {
-      offset = 0;
-      let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
-      lowest.items.forEach(lowestTrack => {
-        playlist.tracks.items.forEach(playlistTrack => {
-          if (lowestTrack.id == playlistTrack.id) {
-            lowestInPlaylist.push(lowestTrack);
-          }
-        });
-      });
-    }
-    */
+  // Shuffle the track IDs and slice to get up to 10 random tracks
+  const randomTrackIds = trackIds.sort(() => 0.5 - Math.random()).slice(0, Math.min(10, trackIds.length));
+
+  // Fetch track details if necessary, or prepare data for rendering
+  const tracksToRender = [];
+  for (const trackId of randomTrackIds) {
+    const trackData = await getData(`/tracks/${trackId}`); // Assuming you can fetch each track's details like this
+    tracksToRender.push(trackData);
   }
 
-  res.render("remix", { playlist: playlist, lowest: lowestInPlaylist });
+  console.log('PLAYLIST LEN: ' + playlist.tracks.items.length)
+
+  res.render("playlist", { playlist: playlist, tracks: tracksToRender });
 });
+
 
 app.get("/library", async (req, res) => {
-  console.log("LOADING LIBRARY")
+  console.log("LOADING LIBRARY");
 
-  // Loading page first
-  res.render("loading");
-  
-  const lib = await getData("/me/tracks");
-  console.log(lib.total);
+  const allTrackIds = Array.from(REWRAPPED_TRACKS.keys());
 
-  const time_range = "long_term";
-  const limit = 50;
-  const topTotalCheck = await getData("/me/top/tracks");
-  let offset = topTotalCheck.total - limit;
-  let lowestInLib = [];
-  while (lowestInLib.length < 10 && offset > 0) {
-    let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
-    for (let i = 0; i < lowest.items.length; i++) {
-      for (let j = 0; j < lib.items.length; j++) {
-        if (lowest.items[i].id == lib.items[j].track.id) {
-          lowestInLib.push(lowest.items[i]);
-        }
-      }
-    }
-    offset -= limit; // shift offset backwards for the next check
-    /*
-    if (offset < 0) {
-      offset = 0;
-      let lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
-      lowest.items.forEach(lowestTrack => {
-        playlist.tracks.items.forEach(playlistTrack => {
-          if (lowestTrack.id == playlistTrack.id) {
-            lowestInPlaylist.push(lowestTrack);
-          }
-        });
-      });
-    }
-    */
+  // Just choose any 10!
+  const selectedTrackIds = allTrackIds.sort(() => 0.5 - Math.random()).slice(0, 10);
+
+  // Fetch full track deets...
+  const trackDetails = [];
+  for (const trackId of selectedTrackIds) {
+    const trackData = await getData(`/tracks/${trackId}`);
+    trackDetails.push(trackData);
   }
 
-  res.render("library", { lowest: lowestInLib });
+  console.log('Rendering library now!');
+  res.render("library", { lowest: trackDetails });
 });
+
 
 app.get("/createplaylist", async (req, res) => {
   const userInfo = await getData("/me");
@@ -216,53 +199,14 @@ app.get("/createplaylist", async (req, res) => {
   const response = await fetch("https://api.spotify.com/v1/users/" + userInfo.id + "/playlists", {
     method: "post",
     body: body,
-    /*body: {
-      "name": "New Playlist",
-      "description": "New playlist description",
-      "public": "false"
-    },*/
     headers: {
       "Content-type": "application/json",
       Authorization: "Bearer " + global.access_token,
     },
   });
-
-  /*
-  curl --request POST \
-  --url https://api.spotify.com/v1/users/smedjan/playlists \
-  --header 'Authorization: Bearer 1POdFZRZbvb...qqillRxMr2z' \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "name": "New Playlist",
-    "description": "New playlist description",
-    "public": false
-}'
-  */
-
   const data = await response.json();
   res.render("createplaylist", { playlist: data });
 });
-
-/*
-app.get("/remix", async (req, res) => {
-  const playlist_id = req.query.id;
-  const playlist = await getData("/playlists/" + playlist_id);
-
-
-  const lib = await getData("/me/tracks");
-  console.log(lib.total);
-
-  // const recent1 = await getData("/me/player/recently-played");
-  // console.log(recent.total);
-
-  const time_range = "long_term";
-  const limit = 50;
-  const topTotalCheck = await getData("/me/top/tracks");
-  let offset = topTotalCheck.total - limit;
-  const lowest = await getData("/me/top/tracks?time_range=" + time_range + "&limit=" + limit + "&offset=" + offset);
-  res.render("remix", { playlist: playlist, lowest: lowest.items });
-});
-*/
 
 let listener = app.listen(3000, function () {
   console.log(
