@@ -18,9 +18,11 @@ block content
     img(src=playlist.images[0].url, class='playlist_image')
     
     h1 #{playlist.name}
-    // td: a(href=playlist.uri) Open in Spotify
     
-    // a(href='/remix?id=' + playlist.id, class = 'button') Find me 10 forgotten songs from this playlist! 🪄
+    
+    a(href="/createplaylist", class="create-playlist-button button") Create Playlist
+
+
 
     h2 Your most least recently listened-to tracks from this playlist, rewrapped!
     
@@ -49,3 +51,5 @@ block content
         function goBack() {
             window.history.back();
         }
+
+       

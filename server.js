@@ -23,11 +23,14 @@ app.set("views", "./views");
 app.set("view engine", "pug");
 
 app.use(express.static("public"));
+app.use(express.json());
 
 // To store ALL tracks that aren't in Top 50 or Most Recent 50!
 const REWRAPPED_TRACKS = new Map();
   // Key: Track ID
   // Value: Track's playlist ID
+let USER_INFO = ''
+let PLAYLIST_SELECTED = []
 
 // Jasmine's credientials below! Should NOT have to change them!
 const redirect_uri = "http://localhost:3000/callback";
@@ -96,10 +99,10 @@ async function getData(endpoint) {
 }
 
 app.get("/dashboard", async (req, res) => {
-  // res.render("loading");
+  res.render("loading");
   try {
     // FIRST, get EVERYTHING
-    const userInfo = await getData("/me");
+    USER_INFO = await getData("/me");
     const topTracks = await getData("/me/top/tracks?limit=50");
     const recentlyPlayed = await getData("/me/player/recently-played?limit=50");
 
@@ -124,7 +127,7 @@ app.get("/dashboard", async (req, res) => {
     console.log(`Unique Tracks Count: ${REWRAPPED_TRACKS.size}`);
 
     res.render("dashboard", {
-      user: userInfo,
+      user: USER_INFO,
       tracks: topTracks.items,
       playlists: playlists.items,
       uniqueTracks: Array.from(REWRAPPED_TRACKS.entries()) // Convert Map to Array to pass to the view
@@ -163,7 +166,12 @@ app.get("/playlist", async (req, res) => {
 
   console.log('PLAYLIST LEN: ' + playlist.tracks.items.length)
 
-  res.render("playlist", { playlist: playlist, tracks: tracksToRender });
+  PLAYLIST_SELECTED = tracksToRender
+
+  res.render("playlist", { 
+    playlist: playlist, 
+    tracks: tracksToRender,
+    });
 });
 
 
@@ -186,27 +194,57 @@ app.get("/library", async (req, res) => {
   res.render("library", { lowest: trackDetails });
 });
 
+app.get('/createplaylist', async (req, res) => {
+    const userId = USER_INFO.id;  // Assuming user's ID is accessible from the session
+    const accessToken = global.access_token;  // Access token should also be securely managed per user session
+    let tracks = PLAYLIST_SELECTED
 
-app.get("/createplaylist", async (req, res) => {
-  const userInfo = await getData("/me");
-  
-  var body = new URLSearchParams({
-    name: "New Playlist",
-    description: "New playlist description",
-    public: false
-  });
+    try {
+        // Create the playlist on Spotify
+        const playlistDetails = {
+            name: 'My New Playlist',
+            description: 'Created via Web Interface',
+            public: true  // or adjust based on your requirement
+        };
 
-  const response = await fetch("https://api.spotify.com/v1/users/" + userInfo.id + "/playlists", {
-    method: "post",
-    body: body,
-    headers: {
-      "Content-type": "application/json",
-      Authorization: "Bearer " + global.access_token,
-    },
-  });
-  const data = await response.json();
-  res.render("createplaylist", { playlist: data });
+        const createResponse = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(playlistDetails)
+        });
+
+        const playlistData = await createResponse.json();
+        if (!createResponse.ok) throw new Error('Failed to create playlist');
+
+        // Add tracks to the newly created playlist if there are any
+        if (tracks && tracks.length > 0) {
+            const trackUris = tracks.map(track => track.uri);  // Assuming each track has a 'uri' property
+            const addTracksResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlistData.id}/tracks`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ uris: trackUris })
+            });
+
+            if (!addTracksResponse.ok) {
+                const errorData = await addTracksResponse.json();
+                throw new Error('Failed to add tracks: ' + errorData.error.message);
+            }
+        }
+
+        res.redirect('/dashboard?success=true');  // Redirect to dashboard with a success query parameter
+    } catch (error) {
+        console.error('Error in creating playlist:', error);
+        res.status(500).send('Failed to create playlist: ' + error.message);
+    }
 });
+
+
 
 let listener = app.listen(3000, function () {
   console.log(

@@ -76,7 +76,7 @@ block content
             - var playlist_num_tracks = p.tracks.total
             - var playlist_id = p.id
 
-            td: img(class='playlist_image', src=p.images[0].url || 'https://via.placeholder.com/50', alt='Playlist Cover')
+            td: img(class='playlist_image', src='https://via.placeholder.com/50', alt='Playlist Cover')
             
             td: a(href='/playlist?id=' + playlist_id) #{playlist_name}
 
