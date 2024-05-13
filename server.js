@@ -32,6 +32,7 @@ let REWRAPPED_TRACKS = new Map();
   // Key: Track ID
   // Value: Track's playlist ID
 let USER_INFO = ''
+let USER_PLAYLISTS = []
 let PLAYLIST_SELECTED = []
 //////////////////////
 //////////////////////
@@ -54,6 +55,7 @@ app.get("/authorize", (req, res) => {
   REWRAPPED_TRACKS = new Map();
   USER_INFO = ''
   PLAYLIST_SELECTED = []
+  USER_PLAYLISTS = []
 
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
@@ -120,72 +122,75 @@ async function getData(endpoint) {
 }
 
 app.get("/dashboard", async (req, res) => {
+    if (USER_INFO.length == 0) {
+        console.log('DASHBOARD: A NEW USER LOGIN! Fetching user data from Spotify...')
+        try {
+            // Set headers to prevent caching
+            res.set('Cache-Control', 'no-store');
 
-  try {
-    // Set headers to prevent caching
-    res.set('Cache-Control', 'no-store');
+            // Clear cookies if needed
+            res.clearCookie('sessionCookie'); // Example: Clear a session cookie if necessary
 
-    // Clear cookies if needed
-    res.clearCookie('sessionCookie'); // Example: Clear a session cookie if necessary
+            // FIRST, get EVERYTHING
+            USER_INFO = await getData("/me");
+            console.log('GOT USER INFO: ' + JSON.stringify(USER_INFO))
+            
+            const topTracks = await getData("/me/top/tracks?limit=50");
+            //console.log('GOT TOP TRACKS: ' + JSON.stringify(topTracks))
 
-    // FIRST, get EVERYTHING
-    USER_INFO = await getData("/me");
-    console.log('GOT USER INFO: ' + JSON.stringify(USER_INFO))
-    
-    const topTracks = await getData("/me/top/tracks?limit=50");
-    //console.log('GOT TOP TRACKS: ' + JSON.stringify(topTracks))
+            const recentlyPlayed = await getData("/me/player/recently-played?limit=50");
+            //console.log('GOT RECENT PLAYED: ' + JSON.stringify(recentlyPlayed))
 
-    const recentlyPlayed = await getData("/me/player/recently-played?limit=50");
-    //console.log('GOT RECENT PLAYED: ' + JSON.stringify(recentlyPlayed))
+            // Creating sets for quick lookup
+            const topTracksIds = new Set(topTracks.items.map(track => track.id));
+            const recentlyPlayedIds = new Set(recentlyPlayed.items.map(item => item.track.id));
 
-    // Creating sets for quick lookup
-    const topTracksIds = new Set(topTracks.items.map(track => track.id));
-    const recentlyPlayedIds = new Set(recentlyPlayed.items.map(item => item.track.id));
+            USER_PLAYLISTS = await getData("/me/playlists?limit=50");
+            //console.log('PLAYLISTS: ' + JSON.stringify(playlists.items))
 
-    const playlists = await getData("/me/playlists?limit=50");
-    //console.log('PLAYLISTS: ' + JSON.stringify(playlists.items))
+            for (const playlist of USER_PLAYLISTS.items) {
+                console.log('INDIV PLAYLIST: ' + JSON.stringify(playlist))
+                
+                const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
 
-    for (const playlist of playlists.items) {
-      console.log('INDIV PLAYLIST: ' + JSON.stringify(playlist))
-      
-      const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
+                // EDGE CASE! 🚨
+                if (!playlistTracks || !playlistTracks.items) 
+                    continue;
+                
+                for (const item of playlistTracks.items) {
+                    console.log('HELEN! A TRACK: ' + JSON.stringify(item.track))
 
-      // EDGE CASE! 🚨
-      if (!playlistTracks || !playlistTracks.items) 
-        continue;
-      
-      for (const item of playlistTracks.items) {
-        console.log('HELEN! A TRACK: ' + JSON.stringify(item.track))
+                    // EDGE CASE! 🚨
+                    if (!item || !item.track) 
+                        continue;
 
-        // EDGE CASE! 🚨
-      if (!item || !item.track) 
-        continue;
+                    const trackId = item.track.id;
+                    
+                    // Check if the track is neither in the top tracks nor in the recently played tracks
+                    if (!topTracksIds.has(trackId) && !recentlyPlayedIds.has(trackId)) {
+                        REWRAPPED_TRACKS.set(trackId, playlist.id); // Add to the map
+                    }
+                }
+            }
 
-        const trackId = item.track.id;
-        // Check if the track is neither in the top tracks nor in the recently played tracks
-        if (!topTracksIds.has(trackId) && !recentlyPlayedIds.has(trackId)) {
-          REWRAPPED_TRACKS.set(trackId, playlist.id); // Add to the map
+            console.log(`Unique Tracks Count: ${REWRAPPED_TRACKS.size}`);
+
+            
+        } catch (error) {
+            console.error('Failed to load data from Spotify', error);
+            res.status(500).send('Failed to load data');
         }
-      }
+    } else {
+        console.log('DASHBOARD: Back button prolly was pressed. No need to collect data.')
+     
     }
-
-    console.log(`Unique Tracks Count: ${REWRAPPED_TRACKS.size}`);
-
     res.render("dashboard", {
-      user: USER_INFO,
-      tracks: topTracks.items,
-      playlists: playlists.items,
-      uniqueTracks: Array.from(REWRAPPED_TRACKS.entries()) // Convert Map to Array to pass to the view
-    }); 
-    
-  } catch (error) {
-    console.error('Failed to load data from Spotify', error);
-    res.status(500).send('Failed to load data');
-  }
-});
+        user: USER_INFO,
+        playlists: USER_PLAYLISTS.items,
+        uniqueTracks: Array.from(REWRAPPED_TRACKS.entries()) // Convert Map to Array to pass to the view
+      }); 
 
-app.get("/dashboard-loaded", async (req, res) => {
-  window.location.href = '/dashboard'
+    
 });
 
 app.get("/playlist", async (req, res) => {
