@@ -68,9 +68,15 @@ block content
     a(href='/library', class='library-button button')
         | 🪄
     
-    h2 Tap the above button to rewrap 10 forgotten songs from your entire Spotify library!
+    h2 It's time to rediscover the unplayed.
 
-    h2 Or, choose one of your playlists below to rewrap...
+    h3 Ready to explore the unknown corners of your Spotify library? Tap the button above to (Re)Wrap 10 forgotten songs from your overall Spotify library! 
+
+    br
+
+    h2 Or... looking for a specific vibe?
+
+    h3 Browse through your playlists and select any to rediscover the tracks that rarely make it to your ears. It’s all about giving every song a second chance to become your new favorite.
 
     //p(class = 'small-text') We'll use your public playlists only.
 
@@ -87,10 +93,11 @@ block content
                         td: img(class='playlist_image', src=(p.images && p.images.length > 0) ? p.images[0].url : 'https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg', alt='Playlist Cover')
                         
                         td: a(href='/playlist?id=' + playlist_id) #{playlist_name}
+                        
                         // Commented out as per your note
                         // td #{playlist_num_tracks} songs
         else
-            p No playlists found! Not even a single sound. Kinda quiet here. Time for your ear to find some musical cheer!
+            p.empty-library It’s unusually quiet in here... Looks like there are no playlists yet! It's the perfect moment to start building some. 
 
 
     //////////////

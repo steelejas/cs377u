@@ -3,7 +3,9 @@ extends layout.pug
 block content    
     a(onclick='goBack()', class = 'back-button button') < Back to dashboard
 
-    h1 Your entire music library, REWRAPPED! ✨
+    h1 Your entire music library, (Re)Wrapped! ✨
+
+    h2 Rediscover the overlooked tunes of your Spotify library.
 
     div
         if lowest && lowest.length > 0
@@ -17,7 +19,7 @@ block content
                     td #{track_name} - #{artist_name}
                     td: a(href=track_preview) Preview
         else 
-            p We couldn't find any songs in your library to rewrap! Time to lay down some new tracks!
+            p.empty-library It’s unusually quiet in here... Looks like there are no tracks yet! It's the perfect moment to start adding some. 
 
     //////////////
     // SCRIPTS //

@@ -184,13 +184,11 @@ app.get("/dashboard", async (req, res) => {
         console.log('DASHBOARD: Back button prolly was pressed. No need to collect data.')
      
     }
+
     res.render("dashboard", {
         user: USER_INFO,
-        playlists: USER_PLAYLISTS.items,
-        uniqueTracks: Array.from(REWRAPPED_TRACKS.entries()) // Convert Map to Array to pass to the view
+        playlists: USER_PLAYLISTS.items
       }); 
-
-    
 });
 
 app.get("/playlist", async (req, res) => {
@@ -224,7 +222,6 @@ app.get("/playlist", async (req, res) => {
     tracks: tracksToRender,
     });
 });
-
 
 app.get("/library", async (req, res) => {
   console.log("LOADING LIBRARY");

@@ -20,14 +20,11 @@ block content
     else
         img(src="https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg", class='playlist_image')
     
-    h1 #{playlist.name}
+    h1 Here is #{playlist.name}, (re)wrapped!
     
-    
-    a(href="/createplaylist", class="create-playlist-button button") Create Playlist
+    a(href="/createplaylist", class="create-playlist-button button") Add playlist to Spotify library
 
-
-
-    h2 Your most least recently listened-to tracks from this playlist, rewrapped!
+    h2 Here are your lesser-listened-to tracks from this playlist.
     
     div
         if tracks && tracks.length > 0
@@ -49,7 +46,7 @@ block content
                         td: audio(preload="auto", autobuffer, controls)
                         source(src=track_preview)
         else 
-            p We couldn't find any songs in your playlist to rewrap! Time to lay down some new tracks!
+            p.empty-library  It’s unusually quiet in here... Looks like there are no tracks yet! It's the perfect moment to start adding some. 
 
 
     //////////////

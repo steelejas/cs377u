@@ -60,6 +60,11 @@ div {
   margin-top: 20px;
 }
 h2 {
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--SPOTIFY_MTN_MEADOW)
+}
+h3 {
   font-size: 20px;
   font-weight: 300;
 }
@@ -70,15 +75,16 @@ h2 {
 .small-text {
   font-size: 15px;
   font-weight: 100;
-  color: gray;
 }
 p.smaller-text {
   font-size: 12px;
-  font-weight: 100;
-  color: whitesmoke;
+  font-weight: 300;
   font-style: italic;
 }
 .back-button {
   background-color: var(--SPOTIFY_COD_GRAY);
   color: var(--SPOTIFY_MTN_MEADOW);
+}
+.empty-library {
+    font-style: italic;
 }
