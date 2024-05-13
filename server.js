@@ -23,14 +23,18 @@ app.set("views", "./views");
 app.set("view engine", "pug");
 
 app.use(express.static("public"));
-app.use(express.json());
+//app.use(express.json());
 
+//////////////////////
+// GLOBAL VARIABLES //
 // To store ALL tracks that aren't in Top 50 or Most Recent 50!
-const REWRAPPED_TRACKS = new Map();
+let REWRAPPED_TRACKS = new Map();
   // Key: Track ID
   // Value: Track's playlist ID
 let USER_INFO = ''
 let PLAYLIST_SELECTED = []
+//////////////////////
+//////////////////////
 
 // Jasmine's credientials below! Should NOT have to change them!
 const redirect_uri = "http://localhost:3000/callback";
@@ -45,10 +49,27 @@ app.get("/", function (req, res) {
 
 app.get("/authorize", (req, res) => {
   console.log('HEY! Login button clicked!')
+
+  // CLEAR THESE!
+  REWRAPPED_TRACKS = new Map();
+  USER_INFO = ''
+  PLAYLIST_SELECTED = []
+
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: client_id,
-    scope: "user-library-read user-top-read user-read-recently-played playlist-modify-public playlist-modify-private",
+    scope: [
+        "user-library-read", 
+        "user-top-read", 
+        "user-read-recently-played", 
+        "playlist-modify-public", 
+        "playlist-modify-private",
+        "user-read-currently-playing",
+        "user-read-playback-state",
+        "user-modify-playback-state",
+        "playlist-read-collaborative",
+        "playlist-read-private"
+    ], 
     redirect_uri: redirect_uri,
     show_dialog: true
   });
@@ -99,23 +120,47 @@ async function getData(endpoint) {
 }
 
 app.get("/dashboard", async (req, res) => {
-  res.render("loading");
+
   try {
+    // Set headers to prevent caching
+    res.set('Cache-Control', 'no-store');
+
+    // Clear cookies if needed
+    res.clearCookie('sessionCookie'); // Example: Clear a session cookie if necessary
+
     // FIRST, get EVERYTHING
     USER_INFO = await getData("/me");
+    console.log('GOT USER INFO: ' + JSON.stringify(USER_INFO))
+    
     const topTracks = await getData("/me/top/tracks?limit=50");
+    //console.log('GOT TOP TRACKS: ' + JSON.stringify(topTracks))
+
     const recentlyPlayed = await getData("/me/player/recently-played?limit=50");
+    //console.log('GOT RECENT PLAYED: ' + JSON.stringify(recentlyPlayed))
 
     // Creating sets for quick lookup
     const topTracksIds = new Set(topTracks.items.map(track => track.id));
     const recentlyPlayedIds = new Set(recentlyPlayed.items.map(item => item.track.id));
 
     const playlists = await getData("/me/playlists?limit=50");
+    //console.log('PLAYLISTS: ' + JSON.stringify(playlists.items))
 
     for (const playlist of playlists.items) {
+      console.log('INDIV PLAYLIST: ' + JSON.stringify(playlist))
+      
       const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
 
+      // EDGE CASE! 🚨
+      if (!playlistTracks || !playlistTracks.items) 
+        continue;
+      
       for (const item of playlistTracks.items) {
+        console.log('HELEN! A TRACK: ' + JSON.stringify(item.track))
+
+        // EDGE CASE! 🚨
+      if (!item || !item.track) 
+        continue;
+
         const trackId = item.track.id;
         // Check if the track is neither in the top tracks nor in the recently played tracks
         if (!topTracksIds.has(trackId) && !recentlyPlayedIds.has(trackId)) {
@@ -132,6 +177,7 @@ app.get("/dashboard", async (req, res) => {
       playlists: playlists.items,
       uniqueTracks: Array.from(REWRAPPED_TRACKS.entries()) // Convert Map to Array to pass to the view
     }); 
+    
   } catch (error) {
     console.error('Failed to load data from Spotify', error);
     res.status(500).send('Failed to load data');

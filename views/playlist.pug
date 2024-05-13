@@ -15,7 +15,10 @@ block content
 
     a(onclick='goBack()', class = 'back-button button') < Back to dashboard
     
-    img(src=playlist.images[0].url, class='playlist_image')
+    if playlist.images && playlist.images.length > 0
+        img(src=playlist.images[0].url, class='playlist_image')
+    else
+        img(src="https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg", class='playlist_image')
     
     h1 #{playlist.name}
     
@@ -27,23 +30,27 @@ block content
     h2 Your most least recently listened-to tracks from this playlist, rewrapped!
     
     div
-      table 
-        each t in tracks
-          tr 
-            - var artist_name = t.artists[0].name
-            - var track_name = t.name
-            - var track_preview = t.preview_url
-            - var artist_id = t.artists[0].id
-            - var album_cover = t.album.images[0].url
-            - var track_id = t.id 
-            - var track_popularity = t.popularity
-            - var track_ms = t.duration_ms 
+        if tracks && tracks.length > 0
+            table 
+                each t in tracks
+                    tr 
+                        - var artist_name = t.artists[0].name
+                        - var track_name = t.name
+                        - var track_preview = t.preview_url
+                        - var artist_id = t.artists[0].id
+                        - var album_cover = t.album.images[0].url
+                        - var track_id = t.id 
+                        - var track_popularity = t.popularity
+                        - var track_ms = t.duration_ms 
 
-            td: img(src=album_cover, style="width:50px;height:50px;")
-            td #{track_name} - #{artist_name}
-            //td: a(href=track_preview) Preview
-            td: audio(preload="auto", autobuffer, controls)
-              source(src=track_preview)
+                        td: img(src=album_cover, style="width:50px;height:50px;")
+                        td #{track_name} - #{artist_name}
+                        //td: a(href=track_preview) Preview
+                        td: audio(preload="auto", autobuffer, controls)
+                        source(src=track_preview)
+        else 
+            p We couldn't find any songs in your playlist to rewrap! Time to lay down some new tracks!
+
 
     //////////////
     // SCRIPTS //

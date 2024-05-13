@@ -55,8 +55,15 @@ block content
     // GREETINGS HEADER
     div.greetings-container
         h1 Welcome, #{user.id}!
+        
         br
-        img(src=user.images[0].url, class='circular_image')
+        
+        // PROFILE PHOTO
+        if user.images && user.images.length > 0
+            img(src=user.images[0].url, class='circular_image')
+        else
+            img(src="https://images.unsplash.com/photo-1617957743097-0d20aa2ea762?q=80&w=2064&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", class='circular_image')
+
 
     a(href='/library', class='library-button button')
         | 🪄
@@ -65,23 +72,26 @@ block content
 
     h2 Or, choose one of your playlists below to rewrap...
 
-    p(class = 'small-text') We'll use your public playlists only.
+    //p(class = 'small-text') We'll use your public playlists only.
 
     div
-      table 
-        each p in playlists
-          tr 
-            - var playlist_name = p.name
-            - var playlist_url = p.uri
-            - var playlist_num_tracks = p.tracks.total
-            - var playlist_id = p.id
+        if playlists && playlists.length > 0
+            table
+                each p in playlists
+                    tr
+                        - var playlist_name = p.name
+                        - var playlist_url = p.uri
+                        - var playlist_num_tracks = p.tracks.total
+                        - var playlist_id = p.id
 
-            td: img(class='playlist_image', src='https://via.placeholder.com/50', alt='Playlist Cover')
-            
-            td: a(href='/playlist?id=' + playlist_id) #{playlist_name}
+                        td: img(class='playlist_image', src=(p.images && p.images.length > 0) ? p.images[0].url : 'https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg', alt='Playlist Cover')
+                        
+                        td: a(href='/playlist?id=' + playlist_id) #{playlist_name}
+                        // Commented out as per your note
+                        // td #{playlist_num_tracks} songs
+        else
+            p No playlists found! Not even a single sound. Kinda quiet here. Time for your ear to find some musical cheer!
 
-            // Below not really necessary, since we're not showing full playlist anymore
-            // td #{playlist_num_tracks} songs
 
     //////////////
     // SCRIPTS //
