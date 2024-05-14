@@ -11,6 +11,10 @@ block content
         h1 {
             color: var(--SPOTIFY_MTN_MEADOW);
         }
+        h3 {
+            margin-left: 100px;
+            margin-right: 100px;
+        }
         .spotify-button {
             background-color: var(--SPOTIFY_MTN_MEADOW);
             color: white;
@@ -27,13 +31,13 @@ block content
     // ACTUAL CONTENT
     h1(class = 'big-emoji') 🎧
 
-    h1 Your music, (re)wrapped!
+    h1 Your Spotify, (re)wrapped!
 
-    h3 Use this tool to rediscover the songs in your Spotify library you haven't listened to in awhile!
-    h3 Choose a playlist (or your entire library!) and this tool will sift through it to find your 10 most forgotten songs.
+    h3 Welcome to Spotify (Re)Wrapped, where the unsung heroes of your music collection get their moment to shine! Forget the top hits parade – here, we invert the music experience to celebrate the overlooked and the underplayed. Dive into your library’s hidden depths with custom playlists crafted from your lesser listened-to tracks. It’s time to rediscover your music!
+
     a(href = '/authorize', class = 'spotify-button button') Connect to Spotify 
 
-    p.smaller-text Must be a registered beta user in order to login.
+    p.smaller-text Must be a registered beta user to login.
 
     include footer.pug
 

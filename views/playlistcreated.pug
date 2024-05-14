@@ -13,7 +13,9 @@ block content
     //////////////
     // CONTENT //
     
-    a(href='/dashboard') Back to dashboard
+    a(href='/dashboard' class='back-button button') < Back to dashboard
+
+    br
 
     if playlist.images && playlist.images.length > 0
         img(src=playlist.images[0].url, class='playlist_image')

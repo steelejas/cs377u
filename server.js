@@ -30,7 +30,11 @@ app.use(express.static("public"));
 // To store ALL tracks that aren't in Top 50 or Most Recent 50!
 let REWRAPPED_TRACKS = new Map();
   // Key: Track ID
-  // Value: Track's playlist ID
+  // Value: 
+        //name: track.name,
+        //preview_url: track.preview_url,
+        //artists: track.artists,
+        //album_cover: track.album.images[0].url
 let USER_INFO = ''
 let USER_PLAYLISTS = []
 let PLAYLIST_SELECTED = []
@@ -46,16 +50,17 @@ global.access_token;
 app.get("/", function (req, res) {
   console.log('HEY! Login page loaded!')
   res.render("index");
+
+  // We assume user has logged out
+  console.log('CLEARING USER DATA!')
+  REWRAPPED_TRACKS = new Map()
+  USER_INFO = ''
+  PLAYLIST_SELECTED = []
+  USER_PLAYLISTS = []
 });
 
 app.get("/authorize", (req, res) => {
   console.log('HEY! Login button clicked!')
-
-  // CLEAR THESE!
-  REWRAPPED_TRACKS = new Map();
-  USER_INFO = ''
-  PLAYLIST_SELECTED = []
-  USER_PLAYLISTS = []
 
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
@@ -125,15 +130,9 @@ app.get("/dashboard", async (req, res) => {
     if (USER_INFO.length == 0) {
         console.log('DASHBOARD: A NEW USER LOGIN! Fetching user data from Spotify...')
         try {
-            // Set headers to prevent caching
-            res.set('Cache-Control', 'no-store');
-
-            // Clear cookies if needed
-            res.clearCookie('sessionCookie'); // Example: Clear a session cookie if necessary
-
             // FIRST, get EVERYTHING
             USER_INFO = await getData("/me");
-            console.log('GOT USER INFO: ' + JSON.stringify(USER_INFO))
+            //console.log('GOT USER INFO: ' + JSON.stringify(USER_INFO))
             
             const topTracks = await getData("/me/top/tracks?limit=50");
             //console.log('GOT TOP TRACKS: ' + JSON.stringify(topTracks))
@@ -145,50 +144,67 @@ app.get("/dashboard", async (req, res) => {
             const topTracksIds = new Set(topTracks.items.map(track => track.id));
             const recentlyPlayedIds = new Set(recentlyPlayed.items.map(item => item.track.id));
 
-            USER_PLAYLISTS = await getData("/me/playlists?limit=50");
+            const receivedPlaylists = await getData("/me/playlists?limit=50");
             //console.log('PLAYLISTS: ' + JSON.stringify(playlists.items))
 
-            for (const playlist of USER_PLAYLISTS.items) {
-                console.log('INDIV PLAYLIST: ' + JSON.stringify(playlist))
-                
-                const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
+            for (const playlist of receivedPlaylists.items) {
+                let ownerID = playlist.owner.id
+                console.log('INDIV PLAYLIST OWNDER ID: ' + ownerID)
 
-                // EDGE CASE! 🚨
-                if (!playlistTracks || !playlistTracks.items) 
-                    continue;
+                // Make sure we only get user's own playlists, no follows
+                if (ownerID == USER_INFO.id) {
+                    USER_PLAYLISTS.push(playlist)
                 
-                for (const item of playlistTracks.items) {
-                    console.log('HELEN! A TRACK: ' + JSON.stringify(item.track))
+                    const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
 
-                    // EDGE CASE! 🚨
-                    if (!item || !item.track) 
+                    // EDGE CASE! 🚨 (Sometimes, malformed playlist fetched)
+                    if (!playlistTracks || !playlistTracks.items) 
                         continue;
-
-                    const trackId = item.track.id;
                     
-                    // Check if the track is neither in the top tracks nor in the recently played tracks
-                    if (!topTracksIds.has(trackId) && !recentlyPlayedIds.has(trackId)) {
-                        REWRAPPED_TRACKS.set(trackId, playlist.id); // Add to the map
+                    for (const item of playlistTracks.items) {
+                        // EDGE CASE! 🚨 (e.g. local files)
+                        if (!item || !item.track || item.is_local) {
+                            print('EDGE CASE DETECTED, SKIPPING TRACK')
+                            continue
+                        }
+                        
+                        const track = item.track
+                        
+                        // Check if the track is neither in the top tracks nor in the recently played tracks
+                        if (!topTracksIds.has(track.id) && !recentlyPlayedIds.has(track.id)) {
+                            console.log('Added unique track!')
+                            // Add to the map
+                            REWRAPPED_TRACKS.set(track.id, {
+                                name: track.name,
+                                preview_url: track.preview_url,
+                                artists: track.artists,
+                                album_cover_url: track.album.images[0].url,
+                                playlist_id: playlist.id
+                            });
+                        }
                     }
                 }
             }
 
             console.log(`Unique Tracks Count: ${REWRAPPED_TRACKS.size}`);
 
-            
+            res.render("dashboard", {
+                user: USER_INFO,
+                playlists: USER_PLAYLISTS
+            }); 
+  
         } catch (error) {
             console.error('Failed to load data from Spotify', error);
             res.status(500).send('Failed to load data');
         }
     } else {
         console.log('DASHBOARD: Back button prolly was pressed. No need to collect data.')
-     
-    }
 
-    res.render("dashboard", {
-        user: USER_INFO,
-        playlists: USER_PLAYLISTS.items
-      }); 
+        res.render("dashboard", {
+            user: USER_INFO,
+            playlists: USER_PLAYLISTS
+        }); 
+    }
 });
 
 app.get("/playlist", async (req, res) => {
@@ -198,7 +214,7 @@ app.get("/playlist", async (req, res) => {
   const playlist = await getData("/playlists/" + playlist_id);
 
   // Get all tracks from UNIQUE_SONGS that are in this playlist
-  const tracksInPlaylist = Array.from(REWRAPPED_TRACKS.entries()).filter(([trackId, pId]) => pId === playlist_id);
+  const tracksInPlaylist = Array.from(REWRAPPED_TRACKS.entries()).filter(([trackId, trackObject]) => trackObject.playlist_id === playlist_id);
 
   // Extract just the track IDs from the filtered array
   const trackIds = tracksInPlaylist.map(([trackId, pId]) => trackId);
@@ -206,14 +222,14 @@ app.get("/playlist", async (req, res) => {
   // Shuffle the track IDs and slice to get up to 10 random tracks
   const randomTrackIds = trackIds.sort(() => 0.5 - Math.random()).slice(0, Math.min(10, trackIds.length));
 
-  // Fetch track details if necessary, or prepare data for rendering
+  // Fetch track details
   const tracksToRender = [];
   for (const trackId of randomTrackIds) {
-    const trackData = await getData(`/tracks/${trackId}`); // Assuming you can fetch each track's details like this
-    tracksToRender.push(trackData);
+    const trackData = REWRAPPED_TRACKS.get(trackId);
+    if (trackData) { 
+        tracksToRender.push(trackData);
+    }
   }
-
-  console.log('PLAYLIST LEN: ' + playlist.tracks.items.length)
 
   PLAYLIST_SELECTED = tracksToRender
 
@@ -232,14 +248,18 @@ app.get("/library", async (req, res) => {
   const selectedTrackIds = allTrackIds.sort(() => 0.5 - Math.random()).slice(0, 10);
 
   // Fetch full track deets...
-  const trackDetails = [];
+  const tracksToRender = [];
   for (const trackId of selectedTrackIds) {
-    const trackData = await getData(`/tracks/${trackId}`);
-    trackDetails.push(trackData);
+    const trackData = REWRAPPED_TRACKS.get(trackId);
+    if (trackData) { 
+        tracksToRender.push(trackData);
+    }
   }
 
   console.log('Rendering library now!');
-  res.render("library", { lowest: trackDetails });
+
+  res.render("library", { 
+    tracks: tracksToRender });
 });
 
 app.get('/createplaylist', async (req, res) => {
@@ -251,7 +271,7 @@ app.get('/createplaylist', async (req, res) => {
         // Create the playlist on Spotify
         const playlistDetails = {
             name: `${req.query.playlistname} - (Re)Wrapped!`,
-            description: 'Created via Web Interface',
+            description: 'Created with care from Stanford University.',
             public: true  // or adjust based on your requirement
         };
 
@@ -267,9 +287,9 @@ app.get('/createplaylist', async (req, res) => {
         const playlistData = await createResponse.json();
         if (!createResponse.ok) throw new Error('Failed to create playlist');
 
-        // Add tracks to the newly created playlist if there are any
+        // Add tracks to newly created playlist
         if (tracks && tracks.length > 0) {
-            const trackUris = tracks.map(track => track.uri);  // Assuming each track has a 'uri' property
+            const trackUris = tracks.map(track => track.uri);
             const addTracksResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlistData.id}/tracks`, {
                 method: 'POST',
                 headers: {
@@ -285,9 +305,8 @@ app.get('/createplaylist', async (req, res) => {
             }
         }
 
-        //res.redirect('/dashboard?success=true');  // Redirect to dashboard with a success query parameter
+        // Done!
         res.redirect(`/playlistcreated?playlistid=${playlistData.id}`);
-        //res.render("createplaylist", { playlist: playlistData });
     } catch (error) {
         console.error('Error in creating playlist:', error);
         res.status(500).send('Failed to create playlist: ' + error.message);
@@ -304,6 +323,7 @@ app.get('/playlistcreated', async (req, res) => {
   }
 });
 
+////////////////////////////////////////////////////////
 
 let listener = app.listen(3000, function () {
   console.log(

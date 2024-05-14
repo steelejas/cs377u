@@ -1,13 +1,4 @@
 extends layout.pug
     
 block content
-    a(href='/dashboard') Back Home
-
-    if playlist.images && playlist.images.length > 0
-        img(src=playlist.images[0].url, class='playlist_image')
-    else
-        img(src="https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg", class='playlist_image')
     
-    h1 Playlist created!
-
-    a(href=playlist.uri, class="create-playlist-button button") Open in Spotify

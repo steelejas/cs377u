@@ -3,21 +3,28 @@ extends layout.pug
 block content    
     a(onclick='goBack()', class = 'back-button button') < Back to dashboard
 
-    h1 Your entire music library, (Re)Wrapped! ✨
+    h1 Your entire Spotify rewrapped! ✨
 
-    h2 Rediscover the overlooked tunes of your Spotify library.
+    h2 Rediscover the overlooked tunes of your library.
+
+    a(href=`/createplaylist?playlistname=${'My Music Library - (Re)Wrapped!'}`, class="create-playlist-button button") Add  playlist to Spotify library
 
     div
-        if lowest && lowest.length > 0
+        if tracks && tracks.length > 0
             table 
-                each t in lowest
+                each t in tracks
                     tr 
-                    - var artist_name = t.artists[0].name
-                    - var track_name = t.name
-                    - var track_preview = t.preview_url
+                        - var artist_name = t.artists[0].name
+                        - var track_name = t.name
+                        - var track_preview = t.preview_url
+                        - var album_cover_url = t.album_cover_url
 
-                    td #{track_name} - #{artist_name}
-                    td: a(href=track_preview) Preview
+                        td: img(src=album_cover_url, style="width:50px;height:50px;")
+                        
+                        td #{track_name} - #{artist_name}
+
+                        td: audio(controls preload="auto")
+                            source(src=track_preview, type="audio/mp3")
         else 
             p.empty-library It’s unusually quiet in here... Looks like there are no tracks yet! It's the perfect moment to start adding some. 
 
