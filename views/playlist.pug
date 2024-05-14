@@ -4,7 +4,7 @@ block content
     ////////////  
     // STYLE //
     style.
-        img {
+        img.playlist-image {
             width: 200px;
             height: 200px;
             margin-bottom: 20px;
@@ -22,30 +22,40 @@ block content
     
     h1 Here is #{playlist.name}, (re)wrapped!
     
-    a(href=`/createplaylist?playlistname=${playlist.name}`, class="create-playlist-button button") Add  playlist to Spotify library
+    a(href=`/createplaylist?playlistname=${playlist.name}`, class="create-playlist-button button") Add re(wrapped) playlist to Spotify library
 
-    p.smaller-text This will create a brand new playlist with only these rewrapped songs. It won't modify the original playlist!
-
-    br
+    p (This will create a new playlist from only these songs. It won't modify the original playlist!)
     
-    h2 Your lesser listened-to tracks from this playlist.
+    h2 Here are your less-listened-to tracks from this playlist.
     
     div
         if tracks && tracks.length > 0
-            table 
-                each t in tracks
-                    tr 
-                        - var artist_name = t.artists[0].name
-                        - var track_name = t.name
-                        - var track_preview = t.preview_url
-                        - var album_cover_url = t.album_cover_url
+            table
+                  tr
+                    td(class='column-header') #
+                    td
+                    td(class='column-header') Title
+                    td(class='column-header') Album
+                    td(class='column-header') Preview
+                  each t in tracks
+                    tr
+                      - var artist_name = t.artists[0].name
+                      - var artist_uri = t.artists[0].uri
+                      - var track_name = t.name
+                      - var track_preview = t.preview_url
+                      - var album_cover_url = t.album_cover_url
+                      - var album_uri = t.album_uri
+                      - var album_name = t.album_name
+                      - var track_uri = t.uri
 
-                        td: img(src=album_cover_url, style="width:50px;height:50px;")
-                        
-                        td #{track_name} - #{artist_name}
-
-                        td: audio(controls preload="auto")
-                            source(src=track_preview, type="audio/mp3")
+                      td(class='track-detail') #{tracks.indexOf(t) + 1}
+                      td: a(href=album_uri): img(src=album_cover_url, class='album-thumbnail', alt='Album cover for' + album_name)
+                      td: div(class='track-title')
+                          a(href=track_uri, class='track-title') #{track_name}
+                          a(href=artist_uri, class='track-detail') #{artist_name}
+                      td: a(href=album_uri class='track-detail') #{album_name}
+                      td: audio(preload="auto", autobuffer, controls)
+                          source(src=track_preview)
         else 
             p.empty-library  It’s unusually quiet in here... Looks like there are no tracks yet! It's the perfect moment to start adding some. 
 

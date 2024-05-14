@@ -23,7 +23,7 @@ ul.footer li {
   margin-right: 1em;
 }
 table {
-  font-family: Arial, Helvetica, sans-serif;
+  /* font-family: Arial, Helvetica, sans-serif;*/
   border-collapse: collapse;
   width: auto;
 }
@@ -40,6 +40,27 @@ td {
   float: left;
   margin: 20px;
 }
+
+.track-title {
+  color: white;
+}
+
+.track-detail {
+  color: #c4c4c4;
+  font-size: 13px;
+  padding-top: 5px;
+}
+
+.column-header {
+  color: #c4c4c4;
+  font-size: 13px;
+}
+
+hr {
+  color: white;
+  size: 1px;
+}
+
 a:hover {
   color: var(--SPOTIFY_MTN_MINT);
 }
@@ -59,6 +80,14 @@ div {
   padding: 20px;
   border-radius: 20px;
   margin-top: 20px;
+}
+div.track-title {
+  padding: 0px;
+  margin-top: 0px;
+  display: grid;
+}
+.underlined {
+  border: 1px #c4c4c4;
 }
 h2 {
     font-size: 22px;
@@ -88,4 +117,17 @@ p.smaller-text {
 }
 .empty-library {
     font-style: italic;
+}
+
+img.album-large {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 20px;
+}
+
+img.album-thumbnail {
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  object-fit: cover;
 }

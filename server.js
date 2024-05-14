@@ -179,7 +179,10 @@ app.get("/dashboard", async (req, res) => {
                                 preview_url: track.preview_url,
                                 artists: track.artists,
                                 album_cover_url: track.album.images[0].url,
-                                playlist_id: playlist.id
+                                playlist_id: playlist.id,
+                                album_uri: track.album.uri,
+                                album_name: track.album.name,
+                                uri: track.uri,
                             });
                         }
                     }
@@ -256,6 +259,9 @@ app.get("/library", async (req, res) => {
     }
   }
 
+  
+  PLAYLIST_SELECTED = tracksToRender;
+  
   console.log('Rendering library now!');
 
   res.render("library", { 
