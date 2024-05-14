@@ -42,7 +42,7 @@ let PLAYLIST_SELECTED = []
 //////////////////////
 
 // Jasmine's credientials below! Should NOT have to change them!
-const redirect_uri = "http://localhost:3000/callback";
+const redirect_uri = "https://rewrapped-16ed9a924597.herokuapp.com/callback" // "http://localhost:3000/callback";
 const client_id = "27355b6bf834496e8d4a0ebee545f18c";
 const client_secret = "a9b83d2bf5b94583a470ec3e52612dae";
 global.access_token;
