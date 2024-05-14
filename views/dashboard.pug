@@ -36,10 +36,23 @@ block content
             overflow: hidden;
             position: relative; /* Needed for animation */
             animation: pulse 2s infinite alternate;
+            text-shadow: 0 0 3px #FF0000;
         }
         @keyframes pulse {
             0% { transform: scale(1); }
             100% { transform: scale(1.1); }
+        }
+        .playlist-button {
+            background: var(--SPOTIFY_COD_GRAY);
+            color: var(--SPOTIFY_MTN_MEADOW);
+            border-style: solid;
+            border-width: 1px;
+            border-color: var(--SPOTIFY_MTN_MEADOW);
+            border-radius: 20px;
+        }
+        .playlist-button:hover {
+            background: var(--SPOTIFY_MTN_MEADOW);
+            color: black;
         }
         .greetings-container {
             display: flex;
@@ -86,14 +99,23 @@ block content
             table
                 each p in playlists
                     tr
-                        - var playlist_name = p.name
-                        - var playlist_url = p.uri
-                        - var playlist_num_tracks = p.tracks.total
-                        - var playlist_id = p.id
+                      - var playlist_name = p.name
+                      - var playlist_uri = p.uri
+                      - var playlist_num_tracks = p.tracks.total
+                      - var playlist_id = p.id
 
-                        td: img(class='playlist_image', src=(p.images && p.images.length > 0) ? p.images[0].url : 'https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg', alt='Playlist Cover')
-                        
-                        td: a(href='/playlist?id=' + playlist_id) #{playlist_name}
+                      //td: img(class='playlist_image', src=(p.images && p.images.length > 0) ? p.images[0].url : 'https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg', alt='Playlist Cover')
+
+                      //td: a(href='/playlist?id=' + playlist_id) #{playlist_name}
+
+                      //td(class='track-detail') #{playlists.indexOf(p) + 1}
+                      
+                      td: a(href=playlist_uri): img(src=(p.images && p.images.length > 0) ? p.images[0].url : 'https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg', class='album-thumbnail', alt='Playlist cover for' + album_name)
+                      td: div(class='track-title')
+                          a(href=playlist_uri, class='track-title') #{playlist_name}
+                          p(class='track-detail') #{playlist_num_tracks} songs
+                      td: a(href='/playlist?id=' + playlist_id, class='playlist-button button') Rewrap
+                      
 
         else
             p.empty-library It’s unusually quiet in here... Looks like there are no playlists yet! It's the perfect moment to start building some. 
