@@ -250,7 +250,7 @@ app.get('/createplaylist', async (req, res) => {
     try {
         // Create the playlist on Spotify
         const playlistDetails = {
-            name: 'My New Playlist',
+            name: `${req.query.playlistname} - (Re)Wrapped!`,
             description: 'Created via Web Interface',
             public: true  // or adjust based on your requirement
         };
@@ -285,13 +285,24 @@ app.get('/createplaylist', async (req, res) => {
             }
         }
 
-        res.redirect('/dashboard?success=true');  // Redirect to dashboard with a success query parameter
+        //res.redirect('/dashboard?success=true');  // Redirect to dashboard with a success query parameter
+        res.redirect(`/playlistcreated?playlistid=${playlistData.id}`);
+        //res.render("createplaylist", { playlist: playlistData });
     } catch (error) {
         console.error('Error in creating playlist:', error);
         res.status(500).send('Failed to create playlist: ' + error.message);
+        res.redirect('/dashboard');
     }
 });
 
+app.get('/playlistcreated', async (req, res) => {
+  const newPlaylist = await getData("/playlists/" + req.query.playlistid);
+  if (newPlaylist) {
+    res.render("playlistcreated", { playlist: newPlaylist });
+  } else {
+    console.error('Error in displaying newly created playlist:', error);
+  }
+});
 
 
 let listener = app.listen(3000, function () {

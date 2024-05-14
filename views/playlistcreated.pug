@@ -1,0 +1,26 @@
+extends layout.pug
+    
+block content
+    ////////////  
+    // STYLE //
+    style.
+        img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 20px;
+        }
+
+    //////////////
+    // CONTENT //
+    
+    a(href='/dashboard') Back to dashboard
+
+    if playlist.images && playlist.images.length > 0
+        img(src=playlist.images[0].url, class='playlist_image')
+    else
+        img(src="https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg", class='playlist_image')
+    
+    h1 Playlist "#{playlist.name}" created!
+
+    a(href=playlist.uri, class="create-playlist-button button") Open in Spotify
+    //////////////

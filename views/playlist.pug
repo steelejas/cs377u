@@ -22,8 +22,10 @@ block content
     
     h1 Here is #{playlist.name}, (re)wrapped!
     
-    a(href="/createplaylist", class="create-playlist-button button") Add playlist to Spotify library
+    a(href=`/createplaylist?playlistname=${playlist.name}`, class="create-playlist-button button") Add re(wrapped) playlist to Spotify library
 
+    p (This will create a new playlist with only these songs. It won't modify the original playlist!)
+    
     h2 Here are your lesser-listened-to tracks from this playlist.
     
     div
