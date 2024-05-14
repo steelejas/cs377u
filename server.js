@@ -164,8 +164,8 @@ app.get("/dashboard", async (req, res) => {
                     for (const item of playlistTracks.items) {
                         // EDGE CASE! 🚨 (e.g. local files)
                         if (!item || !item.track || item.is_local) {
-                            print('EDGE CASE DETECTED, SKIPPING TRACK')
-                            continue
+                            console.log('EDGE CASE DETECTED, SKIPPING TRACK');
+                            continue;
                         }
                         
                         const track = item.track
