@@ -9,6 +9,9 @@ block content
             height: 200px;
             margin-bottom: 20px;
         }
+        h1, h2, p {
+            text-align: center;
+        }
 
     //////////////
     // CONTENT //
@@ -20,13 +23,13 @@ block content
     else
         img(src="https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg", class='playlist_image')
     
-    h1 Here is #{playlist.name}, (re)wrapped!
+    h1 #{playlist.name}, (re)wrapped! ✨
     
-    a(href=`/createplaylist?playlistname=${playlist.name}`, class="create-playlist-button button") Add re(wrapped) playlist to Spotify library
+    a(href=`/createplaylist?playlistname=${playlist.name}`, class="create-playlist-button button") Add playlist to Spotify library
 
     p (This will create a new playlist from only these songs. It won't modify the original playlist!)
     
-    h2 Here are your less-listened-to tracks from this playlist.
+    h2 Here are your lesser listened-to tracks from this playlist.
     
     div
         if tracks && tracks.length > 0

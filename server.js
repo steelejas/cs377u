@@ -276,7 +276,7 @@ app.get('/createplaylist', async (req, res) => {
     try {
         // Create the playlist on Spotify
         const playlistDetails = {
-            name: `${req.query.playlistname} - (Re)Wrapped!`,
+            name: `${req.query.playlistname} - (Re)Wrapped! ✨`,
             description: 'Created with care from Stanford University.',
             public: true  // or adjust based on your requirement
         };
