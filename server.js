@@ -28,7 +28,7 @@ app.use(express.static("public"));
 //////////////////////
 // GLOBAL VARIABLES //
 // To store ALL tracks that aren't in Top 50 or Most Recent 50!
-let REWRAPPED_TRACKS = new Map();
+let REWRAPPABLE_TRACKS = new Map();
   // Key: Track ID
   // Value: 
         //name: track.name,
@@ -42,7 +42,9 @@ let PLAYLIST_SELECTED = []
 //////////////////////
 
 // Jasmine's credientials below! Should NOT have to change them!
-const redirect_uri = "https://rewrapped-16ed9a924597.herokuapp.com/callback" // "http://localhost:3000/callback";
+const redirect_uri = "http://localhost:3000/callback";
+// "https://rewrapped-16ed9a924597.herokuapp.com/callback"
+// "http://localhost:3000/callback";
 const client_id = "27355b6bf834496e8d4a0ebee545f18c";
 const client_secret = "a9b83d2bf5b94583a470ec3e52612dae";
 global.access_token;
@@ -53,7 +55,7 @@ app.get("/", function (req, res) {
 
   // We assume user has logged out
   console.log('CLEARING USER DATA!')
-  REWRAPPED_TRACKS = new Map()
+  REWRAPPABLE_TRACKS = new Map()
   USER_INFO = ''
   PLAYLIST_SELECTED = []
   USER_PLAYLISTS = []
@@ -132,27 +134,28 @@ app.get("/dashboard", async (req, res) => {
         try {
             // FIRST, get EVERYTHING
             USER_INFO = await getData("/me");
-            //console.log('GOT USER INFO: ' + JSON.stringify(USER_INFO))
+            console.log('GOT USER INFO: ' + JSON.stringify(USER_INFO))
             
             const topTracks = await getData("/me/top/tracks?limit=50");
-            //console.log('GOT TOP TRACKS: ' + JSON.stringify(topTracks))
+            console.log('GOT TOP TRACKS')
 
             const recentlyPlayed = await getData("/me/player/recently-played?limit=50");
-            //console.log('GOT RECENT PLAYED: ' + JSON.stringify(recentlyPlayed))
+            console.log('GOT RECENT PLAYED')
 
             // Creating sets for quick lookup
             const topTracksIds = new Set(topTracks.items.map(track => track.id));
             const recentlyPlayedIds = new Set(recentlyPlayed.items.map(item => item.track.id));
 
             const receivedPlaylists = await getData("/me/playlists?limit=50");
-            //console.log('PLAYLISTS: ' + JSON.stringify(playlists.items))
+            console.log('GOT PLAYLISTS')
 
             for (const playlist of receivedPlaylists.items) {
                 let ownerID = playlist.owner.id
-                console.log('INDIV PLAYLIST OWNDER ID: ' + ownerID)
+                let name = playlist.name
 
                 // Make sure we only get user's own playlists, no follows
-                if (ownerID == USER_INFO.id) {
+                // Make sure we don't get our own playlists either
+                if (ownerID == USER_INFO.id && !name.includes("(Re)Wrapped")) {
                     USER_PLAYLISTS.push(playlist)
                 
                     const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
@@ -174,7 +177,7 @@ app.get("/dashboard", async (req, res) => {
                         if (!topTracksIds.has(track.id) && !recentlyPlayedIds.has(track.id)) {
                             console.log('Added unique track!')
                             // Add to the map
-                            REWRAPPED_TRACKS.set(track.id, {
+                            REWRAPPABLE_TRACKS.set(track.id, {
                                 name: track.name,
                                 preview_url: track.preview_url,
                                 artists: track.artists,
@@ -189,7 +192,7 @@ app.get("/dashboard", async (req, res) => {
                 }
             }
 
-            console.log(`Unique Tracks Count: ${REWRAPPED_TRACKS.size}`);
+            console.log(`Unique Tracks Count: ${REWRAPPABLE_TRACKS.size}`);
 
             res.render("dashboard", {
                 user: USER_INFO,
@@ -217,7 +220,7 @@ app.get("/playlist", async (req, res) => {
   const playlist = await getData("/playlists/" + playlist_id);
 
   // Get all tracks from UNIQUE_SONGS that are in this playlist
-  const tracksInPlaylist = Array.from(REWRAPPED_TRACKS.entries()).filter(([trackId, trackObject]) => trackObject.playlist_id === playlist_id);
+  const tracksInPlaylist = Array.from(REWRAPPABLE_TRACKS.entries()).filter(([trackId, trackObject]) => trackObject.playlist_id === playlist_id);
 
   // Extract just the track IDs from the filtered array
   const trackIds = tracksInPlaylist.map(([trackId, pId]) => trackId);
@@ -228,7 +231,7 @@ app.get("/playlist", async (req, res) => {
   // Fetch track details
   const tracksToRender = [];
   for (const trackId of randomTrackIds) {
-    const trackData = REWRAPPED_TRACKS.get(trackId);
+    const trackData = REWRAPPABLE_TRACKS.get(trackId);
     if (trackData) { 
         tracksToRender.push(trackData);
     }
@@ -245,7 +248,7 @@ app.get("/playlist", async (req, res) => {
 app.get("/library", async (req, res) => {
   console.log("LOADING LIBRARY");
 
-  const allTrackIds = Array.from(REWRAPPED_TRACKS.keys());
+  const allTrackIds = Array.from(REWRAPPABLE_TRACKS.keys());
 
   // Just choose any 10!
   const selectedTrackIds = allTrackIds.sort(() => 0.5 - Math.random()).slice(0, 10);
@@ -253,13 +256,12 @@ app.get("/library", async (req, res) => {
   // Fetch full track deets...
   const tracksToRender = [];
   for (const trackId of selectedTrackIds) {
-    const trackData = REWRAPPED_TRACKS.get(trackId);
+    const trackData = REWRAPPABLE_TRACKS.get(trackId);
     if (trackData) { 
         tracksToRender.push(trackData);
     }
   }
 
-  
   PLAYLIST_SELECTED = tracksToRender;
   
   console.log('Rendering library now!');
@@ -276,9 +278,9 @@ app.get('/createplaylist', async (req, res) => {
     try {
         // Create the playlist on Spotify
         const playlistDetails = {
-            name: `${req.query.playlistname} - (Re)Wrapped! ✨`,
-            description: 'Created with care from Stanford University.',
-            public: true  // or adjust based on your requirement
+            name: `${req.query.playlistname}, (Re)Wrapped! ✨`,
+            description: 'Created with care by the students of Stanford University CS 377U: Understanding Users.',
+            public: true 
         };
 
         const createResponse = await fetch(`https://api.spotify.com/v1/users/${userId}/playlists`, {

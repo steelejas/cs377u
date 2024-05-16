@@ -23,13 +23,14 @@ block content
     else
         img(src="https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg", class='playlist_image')
     
-    h1 #{playlist.name}, (re)wrapped! ✨
+    h1 Here's #{playlist.name}, rewrapped! ✨
     
     a(href=`/createplaylist?playlistname=${playlist.name}`, class="create-playlist-button button") Add playlist to Spotify library
 
-    p (This will create a new playlist from only these songs. It won't modify the original playlist!)
+    // Now that I think of it, the line below isn't necessary. I'm pretty sure people know that ADD doesn't mean EDIT.
+    // p (This will create a new playlist from only these songs. It won't modify the original playlist!)
     
-    h2 Here are your lesser listened-to tracks from this playlist.
+    h2 Here are your less listened-to tracks from this playlist.
     
     div
         if tracks && tracks.length > 0

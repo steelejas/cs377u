@@ -1,7 +1,7 @@
 body {
   --SPOTIFY_MTN_MOSS: #1ED760;
   --SPOTIFY_MTN_MEADOW: #1db954;
-  --SPOTIFY_MTN_MINT: #69ff87;
+  --SPOTIFY_MTN_MINT: #9cffaf;
   --SPOTIFY_COD_GRAY: #191414;
 
   padding: 1em 2em;
@@ -9,11 +9,11 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: left;
+  text-align: center;
   margin: 0;
   color: white;
   background-color: black;
-  width: 50%;
+  width: 60%;
   margin-left: auto;
   margin-right: auto;
 }
@@ -36,12 +36,12 @@ td {
   padding-left: 10px;
 }
 .circular_image {
-  width: 40px;
-  height: 40px;
   border-radius: 50%;
   overflow: hidden;
-  float: left;
-  margin: 20px;
+  flex-shrink: 0;
+  width: auto;
+  height: auto; 
+  max-height: 100px; 
 }
 
 .track-title {
@@ -122,7 +122,9 @@ p.smaller-text {
 .empty-library {
     font-style: italic;
 }
-
+.italic-text {
+    font-style: italic;
+}
 img.album-large {
   width: 200px;
   height: 200px;
