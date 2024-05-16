@@ -41,12 +41,11 @@ let PLAYLIST_SELECTED = []
 //////////////////////
 //////////////////////
 
-// Jasmine's credientials below! Should NOT have to change them!
-const redirect_uri = "https://rewrapped-16ed9a924597.herokuapp.com/callback";
-// TODO: COPY AND PASTE ABOVE ACCORDINGLY!
-// "https://rewrapped-16ed9a924597.herokuapp.com/callback"
-// "http://localhost:3000/callback";
+// Comment one or the other! LOCALHOST for local dev, HEROKU for final deployment!
+//const redirect_uri = "http://localhost:3000/callback"
+const redirect_uri = "https://rewrapped-16ed9a924597.herokuapp.com/callback"
 
+// Jasmine's credientials below! Should NOT have to change them!
 const client_id = "27355b6bf834496e8d4a0ebee545f18c";
 const client_secret = "a9b83d2bf5b94583a470ec3e52612dae";
 global.access_token;
@@ -140,9 +139,17 @@ app.get("/dashboard", async (req, res) => {
             
             const topTracks = await getData("/me/top/tracks?limit=50");
             console.log('GOT TOP TRACKS')
+            for (const top of topTracks.items) {
+                console.log('TOP TRACK: ' + top.name)
+            }
 
             const recentlyPlayed = await getData("/me/player/recently-played?limit=50");
+            // before=1708099515000 yields empty list :()
             console.log('GOT RECENT PLAYED')
+            console.log(JSON.stringify(recentlyPlayed.items))
+            for (const recent of recentlyPlayed.items) {
+                console.log('RECENT: ' + JSON.stringify(recent.track.name))
+            }
 
             // Creating sets for quick lookup
             const topTracksIds = new Set(topTracks.items.map(track => track.id));
@@ -151,13 +158,15 @@ app.get("/dashboard", async (req, res) => {
             const receivedPlaylists = await getData("/me/playlists?limit=50");
             console.log('GOT PLAYLISTS')
 
+            console.log('NOW FINDING REWRAPPABLE TRACKS...')
             for (const playlist of receivedPlaylists.items) {
                 let ownerID = playlist.owner.id
                 let name = playlist.name
+                let notOurs = !name.includes("(Re)Wrapped")
 
                 // Make sure we only get user's own playlists, no follows
                 // Make sure we don't get our own playlists either
-                if (ownerID == USER_INFO.id && !name.includes("(Re)Wrapped")) {
+                if (ownerID == USER_INFO.id && notOurs) {
                     USER_PLAYLISTS.push(playlist)
                 
                     const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
@@ -166,18 +175,19 @@ app.get("/dashboard", async (req, res) => {
                     if (!playlistTracks || !playlistTracks.items) 
                         continue;
                     
+                    // For each track...
                     for (const item of playlistTracks.items) {
                         // EDGE CASE! 🚨 (e.g. local files)
                         if (!item || !item.track || item.is_local) {
-                            console.log('EDGE CASE DETECTED, SKIPPING TRACK');
                             continue;
                         }
                         
                         const track = item.track
+                        const popularity = track.popularity
                         
                         // Check if the track is neither in the top tracks nor in the recently played tracks
-                        if (!topTracksIds.has(track.id) && !recentlyPlayedIds.has(track.id)) {
-                            console.log('Added unique track!')
+                        if (!topTracksIds.has(track.id) && !recentlyPlayedIds.has(track.id) && popularity < 50) {
+                            console.log('REWRAPPABLE TRACK: ' + track.name + ' - ' + popularity)
                             // Add to the map
                             REWRAPPABLE_TRACKS.set(track.id, {
                                 name: track.name,
@@ -194,7 +204,7 @@ app.get("/dashboard", async (req, res) => {
                 }
             }
 
-            console.log(`Unique Tracks Count: ${REWRAPPABLE_TRACKS.size}`);
+            console.log(`NUM REWRAPPABLES: ${REWRAPPABLE_TRACKS.size}`);
 
             res.render("dashboard", {
                 user: USER_INFO,
