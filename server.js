@@ -43,7 +43,7 @@ let PLAYLIST_SELECTED = []
 
 // Comment one or the other! LOCALHOST for local dev, HEROKU for final deployment!
 //const redirect_uri = "http://localhost:3000/callback"
-const redirect_uri = "https://rewrapped-16ed9a924597.herokuapp.com/callback"
+const redirect_uri = "https://spotifyrewrapped-0e4be143e730.herokuapp.com/callback"
 
 // Jasmine's credientials below! Should NOT have to change them!
 const client_id = "27355b6bf834496e8d4a0ebee545f18c";
