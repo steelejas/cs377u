@@ -168,6 +168,9 @@ app.get("/dashboard", async (req, res) => {
                 // Make sure we don't get our own playlists either
                 if (ownerID == USER_INFO.id && notOurs) {
                     USER_PLAYLISTS.push(playlist)
+
+                    console.log()
+                    console.log('PLAYLIST: ' + name)
                 
                     const playlistTracks = await getData(`/playlists/${playlist.id}/tracks`); 
 
@@ -175,7 +178,7 @@ app.get("/dashboard", async (req, res) => {
                     if (!playlistTracks || !playlistTracks.items) 
                         continue;
                     
-                    // For each track...
+                    // For each track... NOTE: Order is in when added (not an indicator of recent played though)
                     for (const item of playlistTracks.items) {
                         // EDGE CASE! 🚨 (e.g. local files)
                         if (!item || !item.track || item.is_local) {
@@ -183,10 +186,10 @@ app.get("/dashboard", async (req, res) => {
                         }
                         
                         const track = item.track
-                        const popularity = track.popularity
+                        const popularity = track.popularity // Not sure if this is useful...
                         
                         // Check if the track is neither in the top tracks nor in the recently played tracks
-                        if (!topTracksIds.has(track.id) && !recentlyPlayedIds.has(track.id) && popularity < 50) {
+                        if (!topTracksIds.has(track.id) && !recentlyPlayedIds.has(track.id)) {
                             console.log('REWRAPPABLE TRACK: ' + track.name + ' - ' + popularity)
                             // Add to the map
                             REWRAPPABLE_TRACKS.set(track.id, {
