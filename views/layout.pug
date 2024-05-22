@@ -4,6 +4,13 @@ html
     title Spotify (Re)Wrapped
     link(rel='stylesheet' href='https://sp-bootstrap.global.ssl.fastly.net/8.0.0/sp-bootstrap.min.css')
     link(rel='stylesheet' href='/style.css')
+  // Google tag (gtag.js)
+  script(async src="https://www.googletagmanager.com/gtag/js?id=G-KEDM3SKHDJ")
+  script.
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KEDM3SKHDJ');
 
   body
     block content
