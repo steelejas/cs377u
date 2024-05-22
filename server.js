@@ -17,8 +17,8 @@ APP WON'T START
 import express from "express";
 import fetch from "node-fetch";
 
-import posthog from 'posthog-js'
-posthog.init('phc_DlE5m6XOpmhq023qRsugsmxO2Hb10FryGbTtW61CZk7', { api_host: 'https://us.i.posthog.com' })
+//import posthog from 'posthog-js'
+//posthog.init('phc_DlE5m6XOpmhq023qRsugsmxO2Hb10FryGbTtW61CZk7', { api_host: 'https://us.i.posthog.com' })
 
 const app = express();
 
