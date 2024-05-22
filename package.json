@@ -11,6 +11,7 @@
     "express": "^4.17.1",
     "node-fetch": "^3.2.0",
     "nodemon": "^2.0.15",
+    "posthog-js": "^1.132.0",
     "pug": "^3.0.0"
   },
   "license": "MIT"
