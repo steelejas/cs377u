@@ -14,11 +14,6 @@ block content
         .spotify-button {
             background-color: var(--SPOTIFY_MTN_MEADOW);
             color: white;
-            margin-top: 40px;
-            font-size: 24px;
-        }
-        .big-emoji {
-            font-size: 80px;
         }
         h1 span {
             font-style: italic;
@@ -38,12 +33,5 @@ block content
 
     include footer.pug
 
-    // Google tag (gtag.js)
-    script(async src="https://www.googletagmanager.com/gtag/js?id=G-KEDM3SKHDJ")
-    
-    script.
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-KEDM3SKHDJ');
+
 

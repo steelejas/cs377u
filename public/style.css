@@ -17,6 +17,16 @@ body {
   margin-left: auto;
   margin-right: auto;
 }
+h1 {
+    font-size: 40px;
+    text-align: left;
+    flex-grow: 1;  
+    overflow: hidden; 
+    text-overflow: ellipsis;
+}
+.big-emoji {
+    font-size: 80px;
+}
 ul.footer {
   list-style:none;
   display:inline;
@@ -43,28 +53,23 @@ td {
   height: auto; 
   max-height: 100px; 
 }
-
 .track-title {
   color: white;
 }
-
 .track-detail {
   color: #c4c4c4;
   font-size: 13px;
   padding: 5px 0px 0px 0px;
   margin: 0px;
 }
-
 .column-header {
   color: #c4c4c4;
   font-size: 13px;
 }
-
 hr {
   color: white;
   size: 1px;
 }
-
 a:hover {
   color: var(--SPOTIFY_MTN_MINT);
 }
@@ -74,6 +79,7 @@ a:hover {
   padding: 10px 20px;
   text-decoration: none;
   color: white;
+  font-size: 24px;
   font-weight: bold;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -130,10 +136,82 @@ img.album-large {
   height: 200px;
   margin-bottom: 20px;
 }
-
 img.album-thumbnail {
   width: 40px;
   height: 40px;
   border-radius: 5px;
   object-fit: cover;
+}
+.footer-text {
+    font-size: 10px;
+    font-weight: 100;
+    color: gray;
+}
+td img {
+    width: 50px;
+    height: 50px;
+    margin-right: 5px;
+}
+
+/* PORTRAIT MODE 📲 */
+@media (orientation: portrait) {
+    body {
+        width: 90%;
+        padding: 0.5em 1em;
+    }
+    h1 {
+        font-size: 9em;
+        text-align: center;
+    }
+    h2 {
+        font-size: 6em;
+    }
+    h3 {
+      font-size: 5em;
+    }
+    .big-emoji {
+        font-size: 20em;
+    }
+    .button {
+        padding: 0.5em 1em;
+        font-size: 5em;
+        margin-top: 50px;
+    }
+    .small-text, p.smaller-text {
+        font-size: 4em;
+    }
+    .footer-text {
+        font-size: 3em;
+    }
+    .circular_image {
+        display: none; 
+    }
+    table {
+        display: block;
+    }
+    td {
+        border: none;
+        font-size: 4em;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        text-align: right;
+    }
+    .track-detail {
+        display: none;
+    }
+    .album-thumbnail {
+        display: none;
+    }
+    .playlist_image {
+        width: 40em;
+        height: 40em;
+        margin: 5em;
+    }
+    td audio {
+        height: 40px;
+        overflow: hidden;
+    }
+    .column-header {
+        display: none;
+    }
 }

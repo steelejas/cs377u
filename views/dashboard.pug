@@ -4,13 +4,6 @@ block content
     ////////////
     // STYLE //
     style.
-        h1 {
-            font-size: 40px;
-            text-align: left;
-            flex-grow: 1;  
-            overflow: hidden; 
-            text-overflow: ellipsis;
-        }
         body {
             background-color: black;
             color: white;
@@ -22,11 +15,6 @@ block content
         .greetings-container {
             display: flex;
             align-items: center;
-        }
-        td img {
-            width: 50px;
-            height: 50px;
-            margin-right: 5px;
         }
         .library-button {
             background: linear-gradient(
@@ -65,6 +53,28 @@ block content
         .playlist-button:hover {
             background: var(--SPOTIFY_MTN_MEADOW);
             color: black;
+        }
+
+        @media (orientation: portrait) {
+            h1 {
+                font-size: 6em;
+                text-align: center;
+            }
+            .greetings-container {
+                display: block;
+                align-items: center;
+            }
+            .library-button {
+                font-size: 10em;
+                width: 3em;
+                height: 3em;
+                margin: 1em;
+            }
+            .playlist-button {
+                font-size: 80px;
+                margin-left: 0.5em;
+                padding: 0.5em;
+            }
         }
 
     //////////////
