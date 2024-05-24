@@ -28,6 +28,8 @@ app.set("view engine", "pug");
 app.use(express.static("public"));
 //app.use(express.json());
 
+// import {test, localStorageTest} from "./public/utils.js";
+
 //////////////////////
 // GLOBAL VARIABLES //
 // To store ALL tracks that aren't in Top 50 or Most Recent 50!
@@ -52,6 +54,35 @@ const redirect_uri = "https://spotifyrewrapped-0e4be143e730.herokuapp.com/callba
 const client_id = "27355b6bf834496e8d4a0ebee545f18c";
 const client_secret = "a9b83d2bf5b94583a470ec3e52612dae";
 global.access_token;
+
+//////////////////////
+// COOKIE UTILITIES //
+/*
+function setCookie(cname, cvalue, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  let expires = "expires="+ d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+*/
+//////////////////////
+//////////////////////
 
 app.get("/", function (req, res) {
   console.log('HEY! Login page loaded!')
@@ -133,12 +164,15 @@ async function getData(endpoint) {
 }
 
 app.get("/dashboard", async (req, res) => {
-    if (USER_INFO.length == 0) {
+  //let currUserId = getCookie("userid");
+  //let currUserId = localStorage.getItem("userId");
+  if (USER_INFO.length == 0 || !req.query.userid || req.query.userid !== USER_INFO.id) {
         console.log('DASHBOARD: A NEW USER LOGIN! Fetching user data from Spotify...')
         try {
             // FIRST, get EVERYTHING
             USER_INFO = await getData("/me");
             console.log('GOT USER INFO: ' + JSON.stringify(USER_INFO))
+            //localStorage.setItem("userId", USER_INFO.id);
             
             const topTracks = await getData("/me/top/tracks?limit=50");
             console.log('GOT TOP TRACKS')
@@ -214,7 +248,8 @@ app.get("/dashboard", async (req, res) => {
 
             res.render("dashboard", {
                 user: USER_INFO,
-                playlists: USER_PLAYLISTS
+                playlists: USER_PLAYLISTS,
+                userid: USER_INFO.id
             }); 
   
         } catch (error) {
@@ -226,7 +261,8 @@ app.get("/dashboard", async (req, res) => {
 
         res.render("dashboard", {
             user: USER_INFO,
-            playlists: USER_PLAYLISTS
+            playlists: USER_PLAYLISTS,
+            userid: req.query.userid
         }); 
     }
 });
@@ -260,6 +296,7 @@ app.get("/playlist", async (req, res) => {
   res.render("playlist", { 
     playlist: playlist, 
     tracks: tracksToRender,
+    userid: req.query.userid
     });
 });
 
@@ -285,7 +322,8 @@ app.get("/library", async (req, res) => {
   console.log('Rendering library now!');
 
   res.render("library", { 
-    tracks: tracksToRender });
+    tracks: tracksToRender,
+    userid: req.query.userid });
 });
 
 app.get('/createplaylist', async (req, res) => {
@@ -332,18 +370,18 @@ app.get('/createplaylist', async (req, res) => {
         }
 
         // Done!
-        res.redirect(`/playlistcreated?playlistid=${playlistData.id}`);
+        res.redirect(`/playlistcreated?playlistid=${playlistData.id}&userid=${req.query.userid}`);
     } catch (error) {
         console.error('Error in creating playlist:', error);
         res.status(500).send('Failed to create playlist: ' + error.message);
-        res.redirect('/dashboard');
+        res.redirect(`/dashboard?userid=${req.query.userid}`);
     }
 });
 
 app.get('/playlistcreated', async (req, res) => {
   const newPlaylist = await getData("/playlists/" + req.query.playlistid);
   if (newPlaylist) {
-    res.render("playlistcreated", { playlist: newPlaylist });
+    res.render("playlistcreated", { playlist: newPlaylist, userid: req.query.userid });
   } else {
     console.error('Error in displaying newly created playlist:', error);
   }

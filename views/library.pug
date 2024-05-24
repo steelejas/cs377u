@@ -17,13 +17,14 @@ block content
     //////////////
     // CONTENT //
     
-    a(onclick='goBack()', class = 'back-button button') < Back to dashboard
+    // a(onclick='goBack()', class = 'back-button button') < Back to dashboard
+    a(href=`/dashboard?userid=${userid}`, class = 'back-button button') < Back to dashboard
 
     h1 Here's your entire Spotify, rewrapped! ✨
 
     h2 Rediscover the overlooked tunes of your library.
 
-    a(href=`/createplaylist?playlistname=${'My Music Library'}`, class="create-playlist-button button") Add playlist to Spotify library
+    a(href=`/createplaylist?playlistname=${'My Music Library'}&userid=${userid}`, class="create-playlist-button button") Add playlist to Spotify library
 
     div
         if tracks && tracks.length > 0
