@@ -1,7 +1,16 @@
 extends layout.pug
 
 block title
-  title Connect | Spotify (Re)Wrapped
+  title Connect - Spotify (Re)Wrapped
+
+block gtag
+  // Google tag (gtag.js)
+  script(async src="https://www.googletagmanager.com/gtag/js?id=G-KEDM3SKHDJ")
+  script.
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-KEDM3SKHDJ');
 
 block content
     // STYLE
